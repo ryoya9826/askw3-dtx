@@ -11,14 +11,14 @@ askw3 package
 * フォーマット： LaTeX, (bx)jsclsを想定
 * DVI ウェア： 不問（pTeX系列の場合はdvipdfmxを想定）
 * 必須パッケージ
-- xkeyval
-- iftex
-- bxghost
-- ascmac
-- amsmath,amssymb,amsthm
+	- xkeyval
+	- iftex
+	- bxghost
+	- ascmac
+	- amsmath,amssymb,amsthm
 * "links"オプションで読み込むパッケージ
-- hyperref
-- （場合により）pxjahyper
+	- hyperref
+	- （場合により）pxjahyper
 
 ### 構成物
 * `askw3.pdf`：説明書（DocStrip 文書）
