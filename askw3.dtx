@@ -1,0 +1,1386 @@
+%
+%^^A This file is a askw3.dtx
+%
+%
+% \iffalse
+%<package>\NeedsTeXFormat{LaTeX2e}
+%<package>\ProvidesPackage{askw3}[2019/10/31]
+%
+%<*driver>
+
+\documentclass[dvipdfmx]{jltxdoc}
+\let\cmd\relax
+\usepackage{askw3}
+\usepackage[T1]{fontenc}			%Change encording
+\usepackage{newtxtext,newtxmath}	%Change fonts
+\usepackage{manfnt}					%急カーブ
+\usepackage{spverbatim}				%\verb中に改行
+\usepackage{graphicx,float}
+\usepackage{tikz,tikz-cd}
+\usepackage{metalogo}
+
+\RecordChanges
+\GetFileInfo{askw3.sty}
+\begin{document}
+	\DocInput{askw3.dtx}
+	\PrintChanges
+\end{document}
+%</driver>
+% \fi
+%
+% \CheckSum{2153}
+% \changes{v0.0}{2017/01/22}{Making Start}
+% \changes{v1.0}{2018/10/10}{First release}
+% \changes{v1.1}{2019/08/28}{Bug fix}
+% \changes{v1.11}{2019/10/02}{Bug fiiiix}
+% \changes{v1.2}{2019/10/31}{New function added! See update history}
+% \title{askw3 package^^A
+%     \thanks{This document corresponds to
+%             \textsf{askw3}~\fileversion,
+%             dated \filedate.}}
+% \author{Ryoya Ando~(安藤 遼哉)}
+% \date{\filedate}
+% \maketitle
+% \newenvironment{titebend}{\par\dbend\vspace*{1zh}\par}{\par\hspace*{\fill}\dbend\vspace*{1zh}\par}
+%
+% \section{Licenses} 
+% 
+%  MIT License.
+% \section{User Manual}
+%\setcounter{subsection}{-1}
+%\subsection{Update History}
+%\subsubsection{v1.2}
+%
+%\begin{itemize}
+%	\item tlarrayパッケージへの依存関係を解消.
+%	\item 従来のp\LaTeX だけでなくbxjsclassを使用した場合の\XeLaTeX, Lua\LaTeX に対応.
+%	\item \cs{C}はLua\LaTeX においてhyperrefと競合するため非推奨に(p\LaTeX では警告を表示).代替として\cs{Co}を追加.
+%	\item \TeX 関連文書の作成支援として\cs{cmd},\cs{showme}を追加. 
+%	\item and more....
+%\end{itemize}
+%\subsection{Introduction}
+% このパッケージは拡張された定理環境を提供し,またいくつかの簡単なマクロを提供するものです.本パッケージは内部で xkeyval, amsmath, amssymb, amsthm, ascmac, bxghost, ifluatex パッケージを読み込みます. v1.1ではtlarrayパッケージを要求していましたが, tlarrayパッケージの作者がDEPRECATEDにしたのに伴い本パッケージでも使用を取りやめましたので入手する必要はありません.また,後述するオプション\quo{links}を有効にした場合,~hyperrefパッケージ,場合によりpxjahyperパッケージを読み込みます.
+%
+% 他のパッケージを読み込む際の順序として,まずhyperrefパッケージについて,オプションを独自で指定したい場合はaskw3.styより先に読み込んでください.また,~newtxmathパッケージ等の数式フォントに手を加えるパッケージを読み込む場合は本パッケージの後に読み込んでください.
+%
+%本パッケージはドキュメントクラスが(bx)jsarticleであるドキュメントでの使用を想定しています. bxjsarticle.clsを用いている場合は\spverb|dvi=dvipdfmx, ja=standard, japaram={units}|をオプション引数に設定して使用していると想定して設計しています(もちろん\XeTeX やLua\TeX といったdviウェアを設定する必要のないエンジンで|dvi=dvipdfmx|指定を行う必要はありません.
+%
+%\subsection{Surrounded theorem environment}
+%\macro{makethm}
+% まず本パッケージが提供する定理環境について説明します.基本的にはamsthmパッケージによる定理環境と共存が可能なように設計してあります.本パッケージ独自の定理環境を使用するには,次の構文\cs{makethm}\marg{envname}\marg{labelname}により環境を作成してから用います.それによって定義される環境\cs{begin}|{envname}|により,枠に囲われた定理環境を提供します.例えば\cs{makethm}|{defi}{定義}|により定義される\cs{begin}|{defi}|と\cs{end}|{defi}|によって;\makethm{defi}{定義}
+%\begin{defi}
+% contents
+%\end{defi}
+%　が提供されます.この環境は引数をとり,ラベルを表示します.例えば,~\cs{begin}|{defi}|[浅川の定理]とすると  
+%\begin{defi}[浅川の定理]
+%	contents
+%\end{defi}
+% その他に環境を作成するときには,番号付けをすでに定義された環境(厳密にはカウンタ)に追従させるかどうか選ぶことができます.その書式はamsthmパッケージの\cs{newtheorem}命令と同様です.例えば,~\cs{makethm}|{thm}[defi]{定理}|により;\makethm{thm}[defi]{定理}
+%\begin{thm}
+%  contents
+%\end{thm}
+% を得ます.また,通し番号を振らない場合は\cs{makethm}$\ast$|{thm}{定理}|のようにしてください.
+%^^A \m@syu@punctで後置する約物を指定可能.調整中.
+%
+%\begin{titebend}
+% 厳密には,~2番目の省略可能引数にはすでに定義された環境名ではなく,すでに定義されたカウンタ名\footnote{内部で\cs{c@count}により管理されるカウンタに対する|{count}|を指定します.~\LaTeX における\cs{addtocounter}などと同じ指定方法です.}を指定します.例えば\cs{makethm}|{envname}[footnote]{labelname}|で番号が\cs{footnote}に追従するようになります(それを希望する状況はないでしょうけど).
+%\end{titebend}
+% 番号付けに関連するオプションとして,パッケージを読み込む際に\cs{usepackage}\\|[thmnumthrice]{askw3}|としておくと,番号付けがpart,section,定理環境の順番で並んで行われるようになります.また定理環境の番号はsectionが変わるごとにリセットされるようになります.例を見てみましょう.この文書ではpartを使用していないので,便宜上1を出力させています.\let\origthedefi\thedefi \def\thedefi{\arabic{part}.\thesection.\arabic{defi}}\setcounter{part}{1}
+%\begin{defi}
+%	contents
+%\end{defi}\let\thepart\origpart
+%
+% 同様にthmnumtwiceオプションによりsection,定理環境の順で番号付けされます.また,これらのオプションの処理の関係で\cs{makethm}コマンドはプリアンブルで実行するようにしてください.
+%
+%また,枠で囲われていない通常の定理環境を使用するには,~amsthmパッケージと同じ文法で\cs{newtheorem}命令が使用できます.もちろん\cs{newtheoremstyle}も可能です.
+%
+%\cs{makethm},\cs{newtheorem}どちらで作成した環境も相互参照機能に対応しています.~\cs{begin}|{envname}|と内容の間に\cs{label}\marg{label}とするのが良いでしょう.
+
+%\subsection{Package option}
+%
+% 上記のthmnum系列の他のパッケージオプションを説明します.
+%\subsubsection{links}
+%
+%パッケージオプション\quo{links}を指定すると,もしhyperrefパッケージが読み込まれているなら内部でpxjahyperパッケージを読み込み,本パッケージが提供する枠付き定理環境についてのhyperlinkを提供します.もしhyperrefパッケージを読み込んでいない場合,~hydelinks,hyperfiguresオプションでhyperrefパッケージを読み込み,同様の処理を行います.
+%
+%本来hyperrefがサポートする環境についてももちろんhyperlinkを提供するので,詳細はそちらのドキュメントにあたってください.
+%\subsubsection{zerostart}
+%その名の通り各種カウンタ,通常想定されるsection,figure,table,footnoteと\cs{makethm},\\\cs{newtheorem}で作成する定理環境において0から開始されるように設定します.また,カウンタの親子関係について,親カウンタがインクリメントされるとき子カウンタがリセットされる場合,子カウンタを0から開始されるように設定します.
+%
+%ただし,~\cs{part}はデフォルトではローマ数字を使用するため0から開始するように設定してしまうと不具合が起こります.そのため,もしpartカウンタの表示形式を変更したうえで,0から始める設定にしたいのであればプリアンブルで\cs{setcounter}|{part}{-1}|とするとよいでしょう.\footnote{もちろん,ここで提供していないカウンタも同様の操作で0から始まるように設定することは(このオプションを使わずとも)可能です.}
+%\subsubsection{sectionmark}
+%このオプションは節番号(\cs{section},\cs{subsection}など)における表示を変更し,例えば\S 1.3のように通し番号の前に\quo{\S}を追加します. 
+%
+%\subsubsection{dottedtoc}
+%このオプションは目次(\cs{tableofcontents})において部(\cs{part})について,見出しとページの間に下付きの点線を表示します.また,~sectionmarkオプションを有効にしているとき,節部分を調整します.
+%
+%\subsection{Some macros}
+%\subsubsection{Macro to use in preamble}
+%\macro{thmlinebreak}\cs{thmlinebreak}は,使用すると\cs{newtheorem}で作成した環境及びproof環境において,見出しの後に改行し,インデントするようになります.
+%
+%\macro{setnumdepth}enumerate環境はネスト(入れ子)にすることが可能ですが,パッケージ等で拡張していない状態では5階層以降の深さにするとエラーを出します.そこで\cs{setnumdepth}\marg{num}とすると,~\meta{num}階層までのネストが可能になります.
+%\begin{titebend}
+%このマクロは試作品で,あまりデバッグをしていないので不具合が起こる可能性が高いです.
+%\end{titebend}
+%
+%\macro{addtoreset}単純に\LaTeX のマクロである\cs{@addtoreset}を\cs{makeatletter}下以外でも使えるようにしたものが\cs{addtoreset}です.~\cs{addtoreset}\marg{counter1}\marg{counter2}のようにつかい,~\meta{counter1}は\meta{counter2}がインクリメントするごとにリセットされるようになります(正確には\cs{stepcounter}によってインクリメントされたとき).
+%\subsubsection{Macro for Document}
+%\macro{part}本パッケージでは\cs{part}をjsarticle.clsに定義されているものをベースにすこし変更を加えています.単に\cs{part}\marg{part title}とするときには以前と同様の動作をしますが,省略可能引数について仕様の変更を与えています.従来の\cs{part}\oarg{toc title}\marg{part title}と同等の機能は\cs{part}\oarg{toc title}\texttt{[]}\marg{part title}とすることで得られます.単に\cs{part}\oarg{english title}\marg{part title}とすると,次のようになります.
+%
+%\vspace*{1zh}
+%\makeatletter
+%{
+%\def\prepartname{第}
+%\def\postpartname{部}
+%\def\thepart{\Roman{part}}
+%\def\headfont{\bfseries}
+%\parindent\z@
+%\raggedright
+%\interlinepenalty \@M
+%\normalfont
+%\setlength{\m@syu@length}{\textwidth}
+%\settowidth{\m@syu@length@}{\huge\hspace*{.5em}\headfont\prepartname\thepart\postpartname}
+%\addtolength{\m@syu@length}{-\m@syu@length@}
+%\settowidth{\m@syu@length@}{\huge\headfont part title}
+%\addtolength{\m@syu@length}{-\m@syu@length@}
+%\addtolength{\m@syu@length}{-1em}
+%\begin{tabular}{@{\vrule width 2pt}c}
+%	\huge\hspace*{.5em}\headfont\prepartname\thepart\postpartname\hspace{\m@syu@length}\huge \headfont part title\\[10pt]
+%	\setlength{\m@syu@length}{\textwidth}
+%	\settowidth{\m@syu@length@}{\Large---\textsl{english title}}
+%	\addtolength{\m@syu@length}{-\m@syu@length@}
+%	\addtolength{\m@syu@length}{-1em}
+%	\hspace{\m@syu@length}\Large---\textsl{english title}\\
+%	\noalign{\hrule width \textwidth height 2pt}
+%\end{tabular}
+%}
+%\vspace*{2zh}
+%\makeatother
+%
+%この書式で\cs{part}を用いる場合,~\cs{newpage}を前置して予め改ページしておくことを強く推奨します.
+%
+%\macro{thepartchange}例えば\cs{thepart}を\cs{arabic}|{part}|などと再定義して,部番号をアラビア数字で表示しているとしましょう.これをアルファベットに変えようと思った場合,~\cs{renewcommand}\\|{\thepart}{\Alph{section}}|\cs{setcounter}|{part}{0}|とすればうまくゆきますが,これではhyperlinkを使っているときに不具合が起こります.そこで\cs{thepartchange}を使うと,~\textbf{一度まで}不具合を回避しながら表示形式を変更できます.デフォルトで\cs{thepartchange}を用いると\cs{Alph}で表示する扱いになります.省略可能引数でroman,Roman,arabic,alph,kanziが指定可能で,それぞれ小文字のローマ数字,大文字のローマ数字,アラビア数字,小文字アルファベット,漢数字に対応します.\footnote{もちろん同時に指定できるのは1つです.}
+%
+%\macro{symlist}このマクロは\cs{symlist}\marg{symbol}\marg{description}のように使い,記号の説明に関する次のような書式を提供します.
+%
+%\symlist{symbol}{description}
+%\meta{symbol}に指定した引数は自動的に数式モード内に埋め込まれるので,数式モードを用いる必要は\textbf{ありません}.他方\meta{description}は平文として扱うので,数式を用いる際はその部分を数式モードにしてやる必要があります.
+%
+%\macro{namelabel}\cs{namelabel}は\cs{namelabel}\marg{name}\marg{year of birth}\marg{year of death}のように使い,人名を脚注として出力し,そのデータを内部に格納します.例えば\\
+%\cs{namelabel}|{Alexander Grothendieck}{1928}{2014}|\\
+%のようにすることで,\namelabel{Alexander Grothendieck}{1928}{2014}となります.まだなくなっていない人物の場合は没年を空欄にして\cs{namelabel}\marg{year of death}\verb|{}|としてください.また,~itembox環境などの最中で脚注を使うと,その囲われた領域内にフッターが作成されますが,紙面下部のフッターに脚注を載せたい場合は,環境内の脚注をつけたい部分に\cs{footnotemark}を記述し,環境を出た後に\cs{footnotetext}\marg{body}とすればうまくゆきます.~\cs{namelabel}で同様のことを行いたい場合は,環境内に\cs{footnotemark}を記述して,環境を出た後に\cs{namelabel}$\ast$\marg{name}\marg{born}\marg{death}としてください.
+%
+%\macro{phantomnamelabel}また,~\cs{phantomnamelabel}は脚注に出力せずにデータの格納のみを行います.
+%
+%\macro{namelabelOP}このマクロは今まで宣言した\cs{namalebal}によって格納された人名データを生年によって並び替え,出力します.次に宣言するダミーデータを並び替えてみましょう.
+%
+%\cs{phantomnamelabel}\verb|{dummy1}{1960}{2018}|\par
+%\cs{phantomnamelabel}\verb|{dummy2}{1764}{1840}|\par
+%\cs{phantomnamelabel}\verb|{dummy3}{1757}{1860}|\par
+%\cs{phantomnamelabel}\verb|{dummy4}{2001}{}|
+%
+%
+%\phantomnamelabel{dummy1}{1960}{2018}\phantomnamelabel{dummy2}{1764}{1840}\phantomnamelabel{dummy3}{1757}{1860}\phantomnamelabel{dummy4}{2001}{}
+%\hrulefill
+%
+%\namelabelOP
+%
+%\hrulefill
+%
+%このようになります(先程例で使用したGrothendieckも並び替えられていることに注意してください).データ量が膨大になってきたときはmulticolパッケージを用いて;
+%
+%\cs{begin}|{multicols}{2}|
+%
+%\cs{namelabelOP}
+%
+%\cs{end}|{multicols}|
+%
+%などとするとよいでしょう.
+%\subsubsection{Macros for text and formulas}
+%
+%\macro{quo}\cs{quo}\marg{arg}のように使い,~\quo{arg}を出力します.
+%
+%\macro{uml}\cs{uml}は\cs{uml}{Alphabet}として,ウムラウトを出力します.例えば\cs{uml}|{o}|で\uml{o}となります.
+%
+%\macro{middleoplus}\cs{middleoplus}は\cs{oplus}と\cs{bigoplus}の中間的なサイズの直和記号を出力するものです.実際に見てみると,~|\oplus,\middleoplus,\bigoplus|で;
+% \[\oplus,\middleoplus,\bigoplus\]
+%のようになります.
+%
+%\cs{N},\cs{Z},\cs{Q},\cs{R},\cs{Co},\cs{A},\cs{F}はそれぞれの文字を黒板文字として,例えば"$\N,\Z$"などのように出力します.いままでは$\Co$の出力は\cs{C}を用いていましたが, Lua\TeX においてhyperrefと競合するため非推奨に変更します.  それにともないp\LaTeX では\cs{C}が使われた場合警告を表示するようになりました.代替として\cs{Co}を使用するようにしてください.
+%
+%\macro{pilcrow}また,~\cs{P}については\LaTeX 本来では\quo{~\textparagraph~},いわゆるpilcrowを出力するものですが,本パッケージでは\cs{P}は\quo{~$\mathbb{P}$~}を表すように,本来の機能は\cs{pilcrow}として定義してあります.
+%
+%\macro{mkset}\cs{mkset}は,数式環境内で\cs{mkset}\marg{arg1}\marg{arg2}のようにして,集合を記述します.例えば|$\mkset{a\in A}{f(a)=0}$|で$\mkset{a\in A}{f(a)=0}$と出力します.
+%
+%\macro{nitem}\macro{ntimes}\macro{nplace}\cs{nitem}は,~\cs{nitem}\oarg{alph}\marg{arg}のようにして,繰り返しを記述します.~\meta{alph}を省略すると,~"n"であると解釈されます.すなわち|\nitem{\alpha}|では$\nitem{\alpha}$となり,~|\nitem[k]{\alpha}|では$\nitem[k]{\alpha}$と出力します.また,1から始めるのではなく任意の値から始めたい場合,例えば$\nitem<r>[r+n]{\alpha}$を出力するには\cmd{nitem}\verb|<r>[r+n]{\alpha}|のようにします.これの類似として,次のコマンド\cs{ntimes},\cs{nplace}が用意されています.~\cs{ntimes}の書式は\cs{ntimes}\marg{num}\marg{arg}で,~\meta{num}には2以上の整数を,~\meta{arg}には繰り返したいものを記述します.このコマンドは区切りなしに\meta{num}回の\meta{arg}を出力します.例えば|\ntimes{5}{\alpha}|で$\ntimes{5}{\alpha}$となります.また,~\cs{nplace}は\cs{nitem}において,アルファベットでなく数字を指定するもので,区切り付きで出力します.書式は\cs{nplace}\marg{num}{\marg{arg}で,~\meta{num}は省略できません.
+%
+%\macro{nxcell}\macro{ses}\textbf{これらのマクロはTi\textit{k}Z-cdパッケージを前提にします.} 可換図式を書く際に記述を簡単にするコマンドをいくつか用意しています. \cs{nxcell}は\cs{nxcell}\oarg{label}のように使い, Ti\textit{k}Z-cdでの\cs{arrow}[r]\&と等価です.省略可能引数\oarg{label}を指定した場合には\cs{arrow}[r,"label"]\&として働きます.ただし,次のセルを何も指定しなくてもエラーを出さないように|{}|を次のセルに配置します.例えば次の例を見て下さい.
+%
+%\cs{begin}|{tikzcd}|
+%
+%|0\nxcell A_1 \nxcell[f] A_2 \nxcell[g] A_3\nxcell 0\\|
+%
+%|0\nxcell A_1 \nxcell[f] A_2 \nxcell[g] A_3\nxcell |
+%
+%\cs{end}|{tikzcd}|
+%
+%\begin{tikzcd}
+% 0\nxcell A_1 \nxcell[f] A_2 \nxcell[g] A_3\nxcell 0\\
+% 0\nxcell A_1 \nxcell[f] A_2 \nxcell[g] A_3\nxcell 
+%\end{tikzcd}
+%
+%また, \cs{ses}はshort exact sequenceの略で,その名のとおり短完全列の出力を支援します.具体的には\cs{ses}\oarg{1st label}\oarg{2nd label}\marg{object1}\marg{object2}\marg{object3}を書式とします.注意すべきことはtikzcd環境内\textbf{ではなく}数式モード内で使用してください.次の例を見てください.
+%
+%短完全列|$\ses{A_1}{A_2}{A_3}$|において…
+%
+%-->
+%
+%短完全列$\ses{A_1}{A_2}{A_3}$において…
+%
+%\vspace*{1zh}
+%
+%|\[\ses[\varphi][\psi]{M_1}{M_2}{M_3}\]|
+%
+%-->
+%
+%\[\ses[\varphi][\psi]{M_1}{M_2}{M_3}\]
+%
+%
+%\vspace*{1zh}
+%
+%短完全列|$\ses[f]{A_1}{A_2}{A_3}$|において…
+%
+%-->
+%
+%短完全列$\ses[f]{A_1}{A_2}{A_3}$において…
+%
+%
+%\vspace*{1zh}
+%
+%短完全列|$\ses[][g]{A_1}{A_2}{A_3}$|において…
+%
+%-->
+%
+%短完全列$\ses[][g]{A_1}{A_2}{A_3}$において…
+%\subsubsection{Macros for to write \TeX documents}
+%
+%\macro{shortext}\macro{Text}\macro{longtext}それぞれ試し書きなどをする際に用いるコマンドで,~\cs{shorttext}は\shorttext に,~\cs{Text}は\cs{shorttext}5回分,~\cs{longtext}は\cs{Text}5回分に展開されます.
+%
+%\macro{cmd}本ドキュメントのように,文章中で\TeX のコントロールシークエンスなどを説明したい際に用いるコマンドです. \cs{cmd}\marg{tokenname}はタイプライタ体で\cmd{tokenname}を印字します.
+%
+%\macro{showme}あるコマンド\cs{token}の定義を知りたい場合に使用するコマンドです.使用例を以下に掲示します.
+%
+%\cs{showme}\verb|{expandafter}|\par
+%-->
+%
+%\showme{expandafter}
+%
+%\cs{showme}\verb|{TeX}|\par
+%-->
+%
+%\showme{TeX}
+%
+%\cs{showme}\verb*|{TeX }|\par
+%-->
+%
+%\showme{TeX }
+%
+%\cs{showme}\verb*|{TeX{}}|\par
+%%-->
+%
+%\showme{TeX{}}
+%
+%\cs{showme}|{TeXnichian}|\par
+%-->
+%
+%\showme{TeXnichian}
+%
+%このように,コントロールシークエンス名に\textvisiblespace が含まれたトークンの定義を調べたい場合には\textvisiblespace の入るべき位置に\verb|{}|を挿入してください.
+%\subsubsection{Environment}
+%本パッケージではいくつかの環境が新しく定義されています.それを紹介しましょう.
+%
+%まずは箇条書きを与える環境で,~romanitemize,circitemize,numitemize,step環境です.使用方法はenumerate環境と同じく,~\cs{item}を用いて箇条書きにします.そちらの使用方法を参考にしてください.使用例は次のようになります.
+% 
+%  romanitemize環境;
+% \begin{romanitemize}
+% \item This is a meaningless sample text.
+% \item This is a meaningless sample text.
+% \item This is a meaningless sample text.
+% \end{romanitemize}
+%  circitemize環境;
+% \begin{circitemize}
+	% \item This is a meaningless sample text.
+	% \item This is a meaningless sample text.
+	% \item This is a meaningless sample text.
+	% \end{circitemize}
+%  numitemize環境;
+% \begin{numitemize}
+	% \item This is a meaningless sample text.
+	% \item This is a meaningless sample text.
+	% \item This is a meaningless sample text.
+	% \end{numitemize}
+%  step環境;
+% \begin{step}
+	% \item This is a meaningless sample text.
+	% \item This is a meaningless sample text.
+	% \item This is a meaningless sample text.
+	% \end{step}
+%
+%\vspace*{2zh}
+%
+%  また,同値条件の証明を平易にするeqv環境が実装されています.使用方法はenumerateなどと同じく\cs{item}で十分条件と必要条件を区切ります.基本的にはproof環境などの証明環境の中での使用を想定されています.
+%
+% \begin{eqv}
+% \item このように\item なります.
+% \end{eqv}
+%eqv環境は省略可能引数\meta{num}を使うことで,次のような書式;
+%
+%\cs{begin}|{eqv}[3]|
+%
+%\cs{item} This is a meaningless sample text.
+%
+%\cs{item} This is a meaningless sample text.
+%
+%\cs{item} This is a meaningless sample text.
+%
+%\cs{end}|{eqv}|
+%
+%\begin{eqv}[3]
+% \item\shorttext\item\shorttext\item\shorttext
+%\end{eqv}
+%が使用可能になります.
+
+%\macro{eqvlabelset}また,~\cs{eqvlabelset}は\cs{thepartchange}と同じ形式で\cs{begin}|{eqv}|の前に用いると,ラベルの表示形式を変更します.指定可能なものはroman,Roman,arabic,alph,Alph,kanziで,デフォルトではarabicとなっています.
+%  最後の環境はdefiterm環境で,これまたenumerateとおなじく\cs{item}で区切ります.この環境は引数を取ります.使用例は以下で,
+%
+% \cs{begin}|{defiterm}|\marg{ARG}
+%
+% \cs{item} This is a meaningless sample text.
+% 
+% \cs{item} This is a meaningless sample text.
+%
+% \cs{end}|{defiterm}|
+%
+%  により
+% \begin{defiterm}{ARG}
+	% 	\item \shorttext\item\shorttext
+	% \end{defiterm}
+%  を出力します.
+%
+%\StopEventually{}
+%\section{Definition of macros}
+%
+%     \begin{macrocode}
+%<*askw3>
+%%
+%% This is file `askw3.sty',
+%% Copyright (c) 2017-2019 Ryoya Ando
+%%  Email  :  ryoya31026[a t]gmail.com
+%%
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{askw3}[2019/10/31 v2.0 add showme,cmd,mytitle]
+
+\RequirePackage{xkeyval}				
+\RequirePackage{amsmath,amssymb,amsthm}	%%\let\@xp\expandafter
+\RequirePackage{ascmac}				
+\RequirePackage{bxghost}				
+\RequirePackage{ifluatex}
+
+\def\m@syu@elt{\relax}
+\def\m@syu@thmelt{\relax}
+\def\m@syu@thmtwoelt{\relax}
+\def\m@syu@zero@elt{\relax}
+%%
+%%///Define error message
+%%
+
+\def\@m@syu@toosmall{\PackageError{askw.sty}{The setenum argument must be 5 or more.}\@ehd}
+\def\@m@syu@samename{\PackageError{askw.sty}{This person is already registered.}\@ehd}
+\def\@m@syu@eqvlabel{\PackageError{askw.sty}{Use the specified argument.}\@ehd}
+
+\def\m@syu@oldcommand#1{\PackageWarning{askw.sty}{Use of \protect#1\space is not recommended.}}
+\def\@m@syu@notnamed{\PackageWarning{askw.sty}{Person date is not registerd.}}
+\def\@m@syu@alreadytitlesetted{\PackageWarning{askw.sty}{Title data are already setted, but I updated them.}}
+
+%%
+%%///End of define error message
+%%
+%%
+%%///Define Package Option
+%%
+\def\addoption#1{
+	\@xp\newif\csname if@#1\endcsname
+	\csname @#1false\endcsname
+	\DeclareOption{#1}{\csname @#1true\endcsname}}
+
+\long\def\optiondef#1#2#3{
+	\csname if@#1\endcsname
+	#2
+	\else
+	#3
+	\fi}
+
+\addoption{links}
+\addoption{zerostart}
+\addoption{thmnumthrice}
+\addoption{thmnumtwice}
+\addoption{sectionmark}
+\addoption{dottedtoc}
+%---Enable option
+\ProcessOptions
+
+%---Define behavior of option
+\optiondef{links}{
+	\@ifpackageloaded{hyperref}{
+		\ifluatex\else
+			\RequirePackage{pxjahyper}
+		\fi
+		\def\m@syu@href{%
+			\refstepcounter{Item}%
+			\protected@edef\@currentHlabel{Item.\arabic{Item}}}
+	}{	
+		\RequirePackage[hidelinks,hyperfigures]{hyperref}
+		\ifluatex\else
+			\RequirePackage{pxjahyper}
+		\fi
+		\def\m@syu@href{%
+			\refstepcounter{Item}%
+			\protected@edef\@currentHlabel{Item.\arabic{Item}}}
+	}
+}{\def\m@syu@href{\relax}}
+
+\optiondef{thmnumthrice}{
+	\AtBeginDocument{
+		\def\theequation{\thepart.\thesection.\arabic{equation}}
+		\m@syu@thmelt}
+}{}
+
+\optiondef{thmnumtwice}{
+	\AtBeginDocument{
+		\def\theequation{\thesection.\arabic{equation}}
+		\m@syu@thmtwoelt}
+}{}
+
+\optiondef{zerostart}{
+	\c@figure=\m@ne
+	\c@table=\m@ne
+	\c@footnote=\m@ne
+	\c@section=\m@ne
+	\def\@stpelt#1{\global \csname c@#1\endcsname -2\stepcounter {#1}}
+	\AtBeginDocument{\m@syu@zero@elt}
+}{}
+
+
+\optiondef{sectionmark}{
+	\def\@sect#1#2#3#4#5#6[#7]#8{%
+	\@xp\let\@xp\m@syu@tempa\csname the#1\endcsname
+	\@xp\def\csname the#1\endcsname{\S\m@syu@tempa}%
+	\ifnum #2>\c@secnumdepth
+		\let\@svsec\@empty
+	\else
+		\refstepcounter{#1}%
+		\protected@edef\@svsec{\@seccntformat{#1}\relax}%
+	\fi
+	\@tempskipa #5\relax
+	\ifdim \@tempskipa<\z@
+	\def\@svsechd{%
+		#6{\hskip #3\relax
+			\@svsec #8}%
+		\csname #1mark\endcsname{#7}%
+		\addcontentsline{toc}{#1}{%
+			\ifnum #2>\c@secnumdepth \else
+				\protect\numberline{\csname the#1\endcsname}%
+			\fi
+			#7}}%
+	\else
+	\begingroup
+	\interlinepenalty \@M
+	#6{%
+		\@hangfrom{\hskip #3\relax\@svsec}%
+		#8\@@par}%
+	\endgroup
+	\csname #1mark\endcsname{#7}%
+	\addcontentsline{toc}{#1}{%
+		\ifnum #2>\c@secnumdepth \else
+		\protect\numberline{\csname the#1\endcsname}%
+		\fi
+		#7}% 
+	\fi
+	\@xp\let\csname the#1\endcsname\m@syu@tempa
+	\let\m@syu@tempa\relax
+	\@xsect{#5}
+	}
+}{}
+
+\optiondef{dottedtoc}{
+	\def\l@part#1#2{%
+		\ifnum \c@tocdepth >-2
+		\addpenalty{\@secpenalty}%
+		\addvspace{2.25em \@plus\p@}%
+		\begingroup
+		\parindent\z@
+		\rightskip\@tocrmarg
+		\parfillskip-\rightskip
+		\leavevmode\headfont
+		\setlength\@lnumwidth{4zw}%
+		\advance\leftskip\@lnumwidth 
+		\hskip-\leftskip #1\nobreak
+		\leaders\hbox{\normalfont$\m@th \mkern
+			\@dotsep mu\hbox{.}\mkern \@dotsep mu$}\hfill
+		\nobreak\hbox to\@pnumwidth{\hss#2}\par
+		\endgroup
+		\fi}
+	\if@sectionmark
+	\def\l@section#1#2{%
+		\ifnum \c@tocdepth >\z@
+		\addpenalty{\@secpenalty}%
+		\addvspace{1.0em \@plus\jsc@mpt}%
+		\begingroup
+		\parindent1.5em
+		\rightskip\@tocrmarg
+		\parfillskip-\rightskip
+		\leavevmode\headfont
+		\setlength\@lnumwidth{\jsc@tocl@width}\advance\@lnumwidth 2zw
+		\advance\leftskip\@lnumwidth \hskip-\leftskip
+		#1\nobreak\hfil\nobreak\parindent1.5em
+		\hbox to\@pnumwidth{\hss#2}\par
+		\endgroup
+		\fi}
+	\fi
+}{}
+%%///End of Define Package option
+%%
+%---Make new counter,length,Array
+\newcount\m@syu
+\newcount\m@syu@
+\newcount\m@syu@@
+
+\newcount\m@syu@name
+\newcount\m@syu@sort@length
+\newcounter{m@syu@eqv}
+
+\newlength\m@syu@length
+\newlength\m@syu@length@
+
+\m@syu@name=\z@
+
+%%%///Define theorem environment
+\newcommand{\makethm}{\@ifstar{\makethm@star}{\makethm@nonstar}}
+\newcommand{\thmnotefontchange}[1]{\gdef\m@syu@thm@notefont{#1}}
+
+\def\m@syu@punct{\relax}
+
+\def\makethm@star#1#2{%
+	\newenvironment{#1}[1][]{%
+		\begin{itembox}[l]{#2\m@syu@thmlabel{##1}}
+		}{\end{itembox}}%
+}
+
+\def\makethm@nonstar#1{%
+	\let\@tempa\relax
+	\def\@tempa{\@oparg{\makethm@{#1}}[]}%
+	\@tempa
+}
+
+\def\makethm@#1[#2]#3{%
+	\ifx\relax#2\relax
+	\@ifundefined{c@#1}{%
+		\newcounter{#1}%
+		\g@addto@macro\m@syu@thmelt{%
+			\@xp\def\csname the#1\endcsname{\thepart.\arabic{section}.\arabic{#1}}%
+			\@addtoreset{#1}{section}}%
+		\g@addto@macro\m@syu@thmtwoelt{%
+			\@xp\def\csname the#1\endcsname{\arabic{section}.\arabic{#1}}%
+			\@addtoreset{#1}{section}}%
+		\g@addto@macro\m@syu@zero@elt{\setcounter{#1}{-1}}%
+		\newenvironment{#1}[1][]{%
+			\addtocounter{#1}{1}%
+			\protected@edef\@currentlabel{#3\csname the#1\endcsname}%
+			\begin{itembox}[l]{%
+					\m@syu@href
+					#3\m@syu@punct\textit{\csname the#1\endcsname}\m@syu@thmlabel{##1}}%
+			}{\end{itembox}}%
+	}{%
+		\PackageError{askw.sty}{'#1' environment is already defined}\@eha
+	}%
+	\else
+	\@ifundefined{c@#2}{\@nocounterr{#2}%
+	}{%
+		\newenvironment{#1}[1][]{%
+			\addtocounter{#2}{1}%
+			\protected@edef\@currentlabel{#3\csname the#2\endcsname}%
+			\begin{itembox}[l]{%
+					\m@syu@href
+					#3\textit{\csname the#2\endcsname}\m@syu@thmlabel{##1}}%
+			}{\end{itembox}}%
+	}%
+	\fi
+}
+
+\def\m@syu@thm@notefont{\fontseries\mddefault\upshape}
+
+\def\thmhead@plain#1#2#3{%
+	\m@syu@href
+	\thmname{#1}\thmnumber{\@ifnotempty{#1}{ }\@upn{#2}}%
+	\thm@notefont{\m@syu@thm@notefont}%
+	\thmnote{ {\the\thm@notefont(#3)}}%
+}
+
+\def\@xthm#1#2[#3]{%
+	\ifx\relax#3\relax
+	\newcounter{#1}%
+	\else
+	\newcounter{#1}[#3]%
+	\@xp\xdef\csname the#1\endcsname{\@xp\@nx\csname the#3\endcsname
+		\@thmcountersep\@thmcounter{#1}}%
+	\fi
+	\g@addto@macro\m@syu@thmelt{%
+		\@xp\def\csname the#1\endcsname{\thepart.\the.\arabic{#1}}%
+		\@addtoreset{#1}{section}}%
+	\g@addto@macro\m@syu@thmtwoelt{%
+		\@xp\def\csname the#1\endcsname{\thesection.\arabic{#1}}%
+		\@addtoreset{#1}{section}}%
+	\g@addto@macro\m@syu@zero@elt{\setcounter{#1}{-1}}%
+	\toks@{#2}%
+	\@xp\xdef\csname#1\endcsname{%
+		\@nx\@thm{%
+			\let\@nx\thm@swap
+			\if S\thm@swap\@nx\@firstoftwo\else\@nx\@gobble\fi
+			\@xp\@nx\csname th@\the\thm@style\endcsname}%
+		{#1}{\the\toks@}}%
+}
+
+\def\m@syu@thmlabel#1{%
+	\def\m@syu@thm@{#1}%
+	\ifx\m@syu@thm@\empty
+		\relax
+	\else
+		\nobreakspace(#1)
+	\fi
+}
+
+\newcommand{\thmnumonly}[1]{%
+	\g@addto@macro\m@syu@thmelt{%
+		\@xp\def\csname the#1\endcsname{\arabic{#1}}%
+	}%
+}
+
+\newcommand{\thmlinebreak}{\def\thm@linebreak{Do it!}}
+
+\AtBeginDocument{%
+	\def\@begintheorem#1#2[#3]{%
+		\deferred@thm@head{%
+			\the\thm@headfont\thm@indent
+			\@ifempty{#1}{\let\thmname\@gobble}{\let\thmname\@iden}%
+			\@ifempty{#2}{\let\thmnumber\@gobble}{\let\thmnumber\@iden}%
+			\@ifempty{#3}{\let\thmnote\@gobble}{\let\thmnote\@iden}%
+			\thm@swap\swappedhead
+			\thmhead{#1}{#2}{#3}%
+			\the\thm@headpunct\thmheadnl\hskip\thm@headsep}%
+		\global\protected@edef\@currentlabel{#1#2}%
+		\@ifundefined{thm@linebreak}{}{\quad\par}}%
+}
+
+
+\renewenvironment{proof}[1][\proofname]{%
+	\pushQED{\qed}%
+	\normalfont \topsep6\p@\@plus6\p@\relax
+	\trivlist
+	%\interlinepenalty\@M
+	\@itempenalty\@M 
+	\item[\hskip\labelsep
+	\itshape
+	#1\@addpunct{.}]\quad
+	\@ifundefined{thm@linebreak}{}{%
+		\@ifnextchar\begin{\item}{\setlength{\itemindent}{1em}\item}%
+		}%
+	}{\popQED\endtrivlist\@endpefalse
+}
+	
+\newenvironment{answer}[1][\textbf{解答}]{%
+	\let\m@syu@qed\qedsymbol
+	\def\qedsymbol{(解答終)}%
+	\def\proofname@{#1}%
+	\pushQED{\qed}%
+	\normalfont \topsep6\p@\@plus6\p@\relax
+	\trivlist
+	%\interlinepenalty\@M
+	\@itempenalty\@M 
+	\item[\hskip\labelsep
+	\itshape
+	#1\@addpunct{.}]\quad
+	\@ifundefined{thm@linebreak}{}{%
+		\@ifnextchar\begin{\item}{\setlength{\itemindent}{1em}\item}%
+		}{%
+			\popQED\endtrivlist\@endpefalse
+			\let\qedsymbol\m@syu@qed
+		}
+}
+
+%%
+%%///End of define theorem environment
+%%
+%---Rewrite \part 
+%%% 
+	
+\def\part{%
+	\if@noskipsec \leavevmode \fi
+	\par
+	\addvspace{4ex}%
+	\if@english \@afterindentfalse \else \@afterindenttrue \fi
+	%\@ifstar{\@spart}{\m@syu@part}
+	\secdef\m@syu@part\m@syu@spart %\part{X}-> \m@syu@part[X]{X}
+}
+	
+\def\m@syu@part{%
+	\def\m@syu@finalrun{\m@syu@part@}%
+	\@ifnextchar[{\m@syu@get@one}{%
+		\def\m@syu@label@one{\empty}%
+		\def\m@syu@label@two{\empty}%
+		\m@syu@finalrun}%
+}
+	
+\def\m@syu@part@{%
+	\@xp\ifx\m@syu@label@two\empty
+		\def\m@syu@part@eng{\m@syu@label@one}%
+	\else
+		\def\m@syu@part@eng{\m@syu@label@two}%
+	\fi
+	\@part[\m@syu@part@eng]%
+}
+	
+\def\@part[#1]#2{%
+	\@xp\ifx\m@syu@label@two\empty %if \part{text} or \part[text]{text}
+		\def\m@syu@parttoc{#2}%
+	\else
+		\def\m@syu@parttoc{\m@syu@label@one}%
+	\fi   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	\ifx\m@syu@label@two\empty %if \part[text][]{text}
+		\def\m@syu@part@chka{\relax}%
+		\def\m@syu@part@chkb{\relax}%
+	\else                      %if \part[text]{text} ,\part[X][Y]{Z}
+		\def\m@syu@part@chka{#1}%
+		\def\m@syu@part@chkb{#2}%
+	\fi
+	\def\m@syu@part@tempa{#2}%
+	\ifx\m@syu@label@one\m@syu@part@tempa %if \part{text}
+		\@xp\ifx\m@syu@label@two\empty
+			\def\m@syu@part@chka{\relax}%
+			\def\m@syu@part@chkb{\relax}%
+		\else\fi
+	\else\fi
+	\ifx\m@syu@part@chka\m@syu@part@chkb
+		\else\newpage\thispagestyle{plain}%
+	\fi
+	\ifnum \c@secnumdepth>\m@ne
+		\refstepcounter{part}%
+		\ifx\m@syu@partchanged\relax
+			\else\refstepcounter{m@syu@part}%
+		\fi
+		\addcontentsline{toc}{part}{%
+			\prepartname\thepart\postpartname\hspace{1zw}\m@syu@parttoc}{}%
+	\else
+		\addcontentsline{toc}{part}{#2}{}%
+	\fi
+	\markboth{\prepartname\thepart\postpartname\hspace{1zw}\m@syu@parttoc}{}%
+	\bgroup
+		\parindent\z@
+		\raggedright
+		\interlinepenalty \@M
+		\normalfont
+		\ifnum \c@secnumdepth >\m@ne
+			\ifx\m@syu@part@chka\m@syu@part@chkb
+				\Large\headfont\prepartname\thepart\postpartname
+				\par\nobreak
+				\huge \headfont #2
+			\else 
+				\setlength{\m@syu@length}{\textwidth}%
+				\settowidth{\m@syu@length@}{\huge\hspace*{.5em}\headfont\prepartname\thepart\postpartname}%
+				\addtolength{\m@syu@length}{-\m@syu@length@}%
+				\settowidth{\m@syu@length@}{\huge\headfont #2}%
+				\addtolength{\m@syu@length}{-\m@syu@length@}% 
+				\addtolength{\m@syu@length}{-1em}% 
+				\begin{tabular}{@{\vrule width 2pt}c}%
+					\huge\hspace*{.5em}\headfont\prepartname\thepart\postpartname\hspace{\m@syu@length}\huge \headfont #2\\[10pt]%
+					\setlength{\m@syu@length}{\textwidth}%
+					\settowidth{\m@syu@length@}{\Large---\textsl{#1}}%
+					\addtolength{\m@syu@length}{-\m@syu@length@}%
+					\addtolength{\m@syu@length}{-1em}%
+					\hspace{\m@syu@length}\Large---\textsl{#1}\\
+					\noalign{\hrule width \textwidth height 2pt}%
+				\end{tabular}
+			\fi
+		\fi
+		\markboth{\prepartname\thepart\postpartname\hspace{1zw}#2}{}\par
+	\egroup
+	\nobreak
+	\vskip 3ex
+	\@afterheading
+}
+	
+\def\m@syu@spart#1{%
+	{%
+		\parindent \z@ \raggedright
+		\interlinepenalty \@M
+		\normalfont
+		\huge \headfont #1\par}%
+	\markboth{#1}{#1}%
+	\nobreak
+	\vskip 3ex
+	\@afterheading
+}
+	
+%---Define of internal command
+\def\@ifnextbracket{(}
+		
+\def\equiv@label{%
+	\m@syu=\@ne\relax
+	\def\item{%
+		\ifnum\m@syu@@=\@enumdepth
+			\ifnum \m@syu>\@ne\relax
+				\par\noindent
+			\fi
+			\bgroup\interlinepenalty\@M			
+			\ifnum \m@syu=\@ne\relax
+				\mbox{($\Longrightarrow$)}%
+			\else
+				\mbox{($\Longleftarrow$)}%
+			\fi
+			\global\advance\m@syu\@ne\relax\\\quad\egroup
+		\else
+			\m@syu@eqv@item
+		\fi
+	}%
+}
+	
+\def\equiv@label@roman{\romannumeral}
+\def\equiv@label@Roman{\@xp\@Roman}
+\def\equiv@label@arabic{\relax}
+\def\equiv@label@alph{\@xp\@alph}
+\def\equiv@label@Alph{\@xp\@Alph}
+\def\equiv@label@kanzi{\kansuji}
+
+\def\equiv@temp{\romannumeral}
+	
+\def\equiv@label@{%
+	\m@syu=\@ne\relax
+	\renewcommand{\item}[1][0]{%
+		\ifnum \@enumdepth=\m@syu@@\relax
+			\ifnum \m@syu>\@ne\relax
+				\par\noindent
+			\fi
+			\ifnum ##1=\z@
+				\else\m@syu=##1\relax
+			\fi	
+			\bgroup\interlinepenalty\@M
+			\m@syu@=\m@syu\relax
+			\global\advance\m@syu@\@ne\relax
+			\ifnum \m@syu=\c@m@syu@eqv\relax
+				\mbox{(\equiv@temp\the\m@syu)$\Longrightarrow$(\equiv@temp\the\@ne)}%
+			\else
+				\mbox{(\equiv@temp\the\m@syu)$\Longrightarrow$(\equiv@temp\the\m@syu@)}%
+			\fi
+			\global\advance\m@syu\@ne\relax\\\quad\egroup
+		\else
+			\m@syu@eqv@item
+		\fi
+	}%
+}
+	
+\def\namelabel@push#1#2#3{%
+	\ifnum\m@syu@name=\z@
+		\def\m@syu@named{\relax}%
+		\global\advance\m@syu@name\@ne
+		\@xp\def\csname m@syu@name@\the\m@syu@name\endcsname{#1}%
+		\@xp\def\csname m@syu@born@\the\m@syu@name\endcsname{#2}%
+		\@xp\def\csname m@syu@died@\the\m@syu@name\endcsname{#3}%
+	\else
+		\def\m@syu@namelabelchk{#1}%
+		\global\advance\m@syu@name\@ne
+		\m@syu=\@ne
+		\@whilenum\m@syu<\m@syu@name
+		\do{%
+			\@xp\ifx\csname m@syu@name@\the\m@syu\endcsname\m@syu@namelabelchk
+				\@m@syu@samename
+			\fi
+			\global\advance\m@syu\@ne
+		}%
+		\@xp\def\csname m@syu@name@\the\m@syu@name\endcsname{#1}%
+		\@xp\def\csname m@syu@born@\the\m@syu@name\endcsname{#2}%
+		\@xp\def\csname m@syu@died@\the\m@syu@name\endcsname{#3}%
+	\fi				
+}
+
+\def\namelabel@#1#2#3{%
+	\namelabel@push{#1}{#2}{#3}%
+	\footnotetext{#1,#2-#3}%
+}
+
+\def\namelabel@@#1#2#3{%
+	\namelabel@push{#1}{#2}{#3}%
+	\footnote{#1,#2-#3}%
+}
+
+\def\m@syu@finalrun{\relax}
+
+\def\m@syu@get@one[#1]{%
+	\def\m@syu@label@one{#1}%
+	\@ifnextchar[{\m@syu@get@two}{%
+		\def\m@syu@label@two{\empty}%
+		\m@syu@finalrun
+	}%
+}
+
+\def\m@syu@get@two[#1]{%
+	\def\m@syu@label@two{#1}%
+	\m@syu@finalrun
+}
+
+
+%%
+%%///Define the command used in the preamble
+%%
+\newcommand{\setenumdepth}[1]{%
+	\ifnum #1<5 
+		\@m@syu@toosmall
+	\else
+		\m@syu=#1\relax
+		\def\list##1##2{%
+			\ifnum \@listdepth >\m@syu
+				\@toodeep
+			\else
+				\global\advance\@listdepth\@ne
+			\fi
+			\rightmargin\z@
+			\listparindent\z@
+			\itemindent\z@
+			\csname @list\romannumeral\the\@listdepth\endcsname
+			\def\@itemlabel{##1}%
+			\let\makelabel\@mklab
+			\@nmbrlistfalse
+			##2\relax
+			\@trivlist
+			\parskip\parsep
+			\parindent\listparindent
+			\advance\linewidth -\rightmargin
+			\advance\linewidth -\leftmargin 
+			\advance\@totalleftmargin \leftmargin
+			\parshape \@ne \@totalleftmargin \linewidth
+			\ignorespaces
+		}%
+		\m@syu=\thr@@\relax
+		\@whilenum \m@syu<#1 \relax                     
+		\do{\@definecounter{enum\romannumeral\the\m@syu}%
+			\advance\m@syu\@ne}%
+		\@definecounter{enum\romannumeral\the\m@syu}%
+		\def\enumerate{%
+			\ifnum \@enumdepth >#1 \@toodeep\else
+			\advance\@enumdepth \@ne
+			\edef\@enumctr{enum\romannumeral\the\@enumdepth}\fi
+			\@ifnextchar[{\@@enum@}{\@enum@}}%
+	\fi
+}
+	
+\newcommand{\addtoreset}[2]{\@addtoreset{#1}{#2}}
+
+\newcommand{\myheader}[1]{%
+	\pagestyle{fancy}%
+	\def\sectionmark##1{\markright{%
+			\ifnum \c@secnumdepth >\z@ \thesection \hskip1\zw\fi
+			##1}}%
+	\lhead{\nouppercase{\leftmark}}%
+	\chead{#1}%
+	\rhead{\nouppercase{\rightmark}}%
+	\fancyfoot[C]{\thepage}%
+}
+
+\newif\ifm@syu@setmytitle
+\m@syu@setmytitlefalse
+
+\define@key[m@syu]{setmytitle}{author}[Jone Doe]{\def\m@syu@author{#1}}
+\define@key[m@syu]{setmytitle}{date}[\today]{\def\m@syu@date{#1}}
+%\define@key[m@syu]{setmytitle}{title}[nontitled]{\def\m@syu@title{#1}}
+
+\presetkeys[m@syu]{setmytitle}{author,date}{}
+
+\newcommand{\setmytitle}[1]{%
+	\ifm@syu@setmytitle
+		\@m@syu@alreadytitlesetted
+	\fi
+	\setkeys[m@syu]{setmytitle}{#1}%
+	\m@syu@setmytitletrue	
+}
+
+\newcommand{\mytitle}{\@ifnextchar[{\setmytitle@sec}{\m@syu@mytitle}}
+\def\setmytitle@sec[#1]{%
+	\ifm@syu@setmytitle
+		\@m@syu@alreadytitlesetted
+	\fi
+	\setkeys[m@syu]{setmytitle}{#1}%
+	\m@syu@setmytitletrue	
+	\m@syu@mytitle
+}
+
+\AtBeginDocument{%
+	\@ifpackageloaded{fancyhdr}{%
+		\def\m@syu@mytitle#1{%
+			\ifm@syu@setmytitle
+				\else\setkeys[m@syu]{setmytitle}{}%
+			\fi
+			\title{#1}\author{\m@syu@author}\date{\m@syu@date}%
+			\maketitle
+			\myheader{#1}%
+			\thispagestyle{empty}%
+			\c@page=\z@
+		}%
+	}{%
+		\def\m@syu@mytitle#1{%
+			\ifm@syu@setmytitle
+				\else\setkeys[m@syu]{setmytitle}{}%
+			\fi
+			\title{#1}\author{\m@syu@author}\date{\m@syu@date}%
+			\maketitle
+			\c@page=\z@
+		}%
+	}%
+}%
+
+%%
+%%///End of defining about command which used preamble
+%%
+%%
+%%///Define command which use in article
+%%
+\let\m@syu@partchanged\relax
+\newcounter{m@syu@part}
+\newcommand{\thepartchange}[1][Alph]{%
+	\setcounter{m@syu@part}{0}%
+	\def\m@syu@partchanged{changed}%
+	\let\m@syu@orig@thepart=\thepart
+	\newcount\m@syu@part@save
+	\m@syu@part@save=\c@part
+	\@xp\let\@xp\partchange@temp\csname equiv@label@#1\endcsname\relax
+	\ifx\partchange@temp\equiv@label@roman
+	\else
+	\ifx\partchange@temp\equiv@label@Roman
+	\else
+	\ifx\partchange@temp\equiv@label@kanzi
+	\else
+	\ifx\partchange@temp\equiv@label@arabic
+	\else
+	\ifx\partchange@temp\equiv@label@Alph
+	\else
+	\ifx\partchange@temp\equiv@label@alph
+	\else
+		\m@syu@eqvlabel %Error message
+	\fi\fi\fi\fi\fi\fi
+	\gdef\thepart{\partchange@temp\the\c@m@syu@part}%
+}
+
+\newcommand{\thepartchangefinish}{%
+	\let\m@syu@partchanged\relax
+	\let\thepart\m@syu@orig@thepart
+	\c@part=\m@syu@part@save
+}
+	
+\newcommand{\middleoplus}{\mathchar"134C}
+	
+\newcommand{\A}{\mathbb{A}}
+\newcommand{\Co}{\mathbb{C}}
+
+\ifluatex
+\else
+\newcommand{\C}{%
+	\mathbb{C}%
+	\PackageWarning{askw.sty}{Use \protect\Co\space instead \protect\C\space.}%
+} %
+\fi
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\F}{\mathbb{F}}
+	
+\let\pilcrow\P
+\renewcommand{\P}{\mathbb{P}}
+\let\mP\P	
+	
+\newcommand{\mkset}[2]{\left\{#1\mathrel{}\middle|\mathrel{}#2\right\}}
+	
+\newcommand{\nitem}{\@ifnextchar<{\@nitem@}{\def\nitem@temp{1}\@nitem}}
+
+\def\@nitem@<#1>{%
+	\def\nitem@temp{#1}%
+	\@nitem}
+
+\newcommand{\@nitem}[2][n]{#2_\nitem@temp,\dots,#2_{#1}}
+
+	
+\newcommand{\nplace}[2]{%
+	\ifnum #1>\z@ \relax
+		\m@syu=\@ne\relax
+		\@whilenum\m@syu<#1\relax
+		\do{{#2}_{\the\m@syu},\advance\m@syu\@ne\relax}%
+		{#2}_{#1}%
+	\fi
+}
+	
+\newcommand{\ntimes}[2]{%
+	\m@syu=\@ne\relax
+	\@whilenum\m@syu<#1\relax
+	\do{#2\relax\advance\m@syu\@ne}%
+	#2
+}
+		
+\newcommand{\quo}[1]{``#1''}
+\newcommand{\uml}[1]{\"#1}
+	
+\newcommand{\symlist}[2]{%
+	\mbox{$#1$}%
+	\setlength{\m@syu@length}{6cm}%
+	\settowidth{\m@syu@length@}{\mbox{$#1$}}%
+	\addtolength{\m@syu@length}{-\m@syu@length@}%
+	\leaders\hbox{\normalfont$\m@th \mkern%
+		\@dotsep mu\hbox{.}\mkern \@dotsep mu$}\hskip\m@syu@length
+	#2\par
+}
+	
+\newcommand{\namelabel}{\@ifstar{\namelabel@}{\namelabel@@}}
+\newcommand{\phantomnamelabel}[3]{\namelabel@push{#1}{#2}{#3}}
+\newcommand{\hnamelabel}[4][\m@syu@name@nooption]{%
+	\def\m@syu@name@nooption{#2}%
+	#2\ (#3-#4)\namelabel@push{#1}{#3}{#4}%
+}
+
+\newcommand{\namelabelOP}{%
+	\@ifundefined{m@syu@named}{\@m@syu@notnamed}{%
+		\newcount\c@m@syu@borna
+		\newcount\c@m@syu@bornb
+		\newcount\c@m@syu@dieda
+		\newcount\c@m@syu@diedb
+		\@tempcnta=\@ne
+		\m@syu@sort@length=\m@syu@name
+		\@whilenum\@tempcnta<\m@syu@name\do{%
+			\m@syu=\@ne
+			\m@syu@=\@ne
+			\@whilenum\m@syu<\m@syu@sort@length
+			\do{% 
+				\global\advance\m@syu@\@ne
+				\@xp\c@m@syu@borna\@xp=\csname m@syu@born@\the\m@syu\endcsname\relax
+				\@xp\c@m@syu@bornb\@xp=\csname m@syu@born@\the\m@syu@\endcsname\relax
+				\ifnum\c@m@syu@borna=\c@m@syu@bornb
+				\xdef\m@syu@emptychka{\csname m@syu@died@\the\m@syu\endcsname}
+				\xdef\m@syu@emptychkb{\csname m@syu@died@\the\m@syu@\endcsname}
+				\ifx\m@syu@emptychka\empty
+				\c@m@syu@dieda=\@M
+				\ifx\m@syu@emptychkb\empty
+				\c@m@syu@diedb=\@M
+				\else
+				\@xp\c@m@syu@diedb\@xp=\csname m@syu@died@\the\m@syu@\endcsname\relax
+				\fi
+				\else
+				\@xp\c@m@syu@dieda\@xp=\csname m@syu@died@\the\m@syu\endcsname\relax
+				\ifx\m@syu@emptychkb\empty
+				\c@m@syu@diedb=\@M
+				\else
+				\@xp\c@m@syu@diedb\@xp=\csname m@syu@died@\the\m@syu@\endcsname\relax
+				\fi
+				\fi
+				\ifnum\c@m@syu@dieda>\c@m@syu@diedb
+				\xdef\m@syu@nametemp{\csname m@syu@name@\the\m@syu\endcsname}
+				\xdef\m@syu@borntemp{\csname m@syu@born@\the\m@syu\endcsname}
+				\xdef\m@syu@diedtemp{\csname m@syu@died@\the\m@syu\endcsname}
+				\@xp\xdef\csname m@syu@name@\the\m@syu\endcsname{\csname m@syu@name@\the\m@syu@\endcsname}
+				\@xp\xdef\csname m@syu@born@\the\m@syu\endcsname{\csname m@syu@born@\the\m@syu@\endcsname}
+				\@xp\xdef\csname m@syu@died@\the\m@syu\endcsname{\csname m@syu@died@\the\m@syu@\endcsname}
+				\@xp\xdef\csname m@syu@name@\the\m@syu@\endcsname{\m@syu@nametemp}
+				\@xp\xdef\csname m@syu@born@\the\m@syu@\endcsname{\m@syu@borntemp}
+				\@xp\xdef\csname m@syu@died@\the\m@syu@\endcsname{\m@syu@diedtemp}
+				\fi
+				\else
+				\ifnum\c@m@syu@borna>\c@m@syu@bornb
+				\xdef\m@syu@nametemp{\csname m@syu@name@\the\m@syu\endcsname}
+				\xdef\m@syu@borntemp{\csname m@syu@born@\the\m@syu\endcsname}
+				\xdef\m@syu@diedtemp{\csname m@syu@died@\the\m@syu\endcsname}
+				\@xp\xdef\csname m@syu@name@\the\m@syu\endcsname{\csname m@syu@name@\the\m@syu@\endcsname}
+				\@xp\xdef\csname m@syu@born@\the\m@syu\endcsname{\csname m@syu@born@\the\m@syu@\endcsname}
+				\@xp\xdef\csname m@syu@died@\the\m@syu\endcsname{\csname m@syu@died@\the\m@syu@\endcsname}
+				\@xp\xdef\csname m@syu@name@\the\m@syu@\endcsname{\m@syu@nametemp}
+				\@xp\xdef\csname m@syu@born@\the\m@syu@\endcsname{\m@syu@borntemp}
+				\@xp\xdef\csname m@syu@died@\the\m@syu@\endcsname{\m@syu@diedtemp}			
+				\fi
+				\fi
+				\global\advance\m@syu\@ne
+			}
+			\advance\m@syu@sort@length\m@ne
+			\advance\@tempcnta\@ne
+		}
+		\m@syu=\@ne
+		\advance\m@syu@name\@ne
+		\@whilenum\m@syu<\m@syu@name
+		\do{
+			%
+			\xdef\m@syu@emptychka{\csname m@syu@died@\the\m@syu\endcsname}
+			\ifx\m@syu@emptychka\empty
+			\@xp\def\csname m@syu@died@\the\m@syu\endcsname{\phantom{3333}}
+			\else
+			\@xp\c@m@syu@dieda\@xp=\csname m@syu@died@\the\m@syu\endcsname\relax
+			\ifnum\c@m@syu@dieda<1000
+			\let\m@syu@phantom\phantom
+			\let\phantom\relax
+			\def\m@syu@phantom@{\phantom{3}}
+			\@xp\xdef\csname m@syu@died@\the\m@syu\endcsname{\the\c@m@syu@dieda\m@syu@phantom@}
+			\let\phantom\m@syu@phantom%
+			\fi
+			\fi
+			\par
+			\csname m@syu@name@\the\m@syu\endcsname.\hfill
+			\csname m@syu@born@\the\m@syu\endcsname-\csname m@syu@died@\the\m@syu\endcsname\par
+			\global\advance\m@syu\@ne}%
+	}%
+}
+	
+	\newcommand{\ses}{%
+		\def\m@syu@finalrun{\ses@making}%
+		\@ifnextchar[{\m@syu@get@one}{%
+			\def\m@syu@label@one{\empty}%
+			\def\m@syu@label@two{\empty}%
+			\m@syu@finalrun}%
+	}
+	
+	\def\ses@making#1#2#3{%
+		\begin{tikzcd}%
+			0
+			\arrow[r]\pgfmatrixnextcell#1\arrow[r,"\m@syu@label@one"]
+			\pgfmatrixnextcell#2\arrow[r,"\m@syu@label@two"]
+			\pgfmatrixnextcell#3\arrow[r]\pgfmatrixnextcell
+			0
+		\end{tikzcd}%
+	}
+	
+	\newcommand{\nxcell}{\@ifnextchar[{\nxcell@label}{\nxcell@nolabel}}
+	
+	\def\nxcell@label[#1]{{}\arrow[r,"#1"]\pgfmatrixnextcell{}}
+	\def\nxcell@nolabel{{}\arrow[r]\pgfmatrixnextcell{}}
+%---Make environment
+	
+\newenvironment{romanitemize}
+	{\begin{enumerate}
+		\@xp\def\csname labelenum\romannumeral\the\@enumdepth\endcsname
+		{\@xp\m@syu\@xp=\csname c@enum\romannumeral\the\@enumdepth\endcsname\relax
+		(\romannumeral\the\m@syu)}%
+		\setlength{\parindent}{1em}%
+	}{\end{enumerate}}
+	
+\newenvironment{circitemize}
+	{\begin{enumerate}
+		\@xp\def\csname labelenum\romannumeral\the\@enumdepth\endcsname
+		{\@xp\m@syu\@xp=\csname c@enum\romannumeral\the\@enumdepth\endcsname\relax
+			${\the\m@syu}^{\circ}$)}%
+		\setlength{\parindent}{1em}%
+	}{\end{enumerate}}
+	
+\newenvironment{numitemize}
+	{\begin{enumerate}
+		\@xp\def\csname labelenum\romannumeral\the\@enumdepth\endcsname
+		{\@xp\m@syu\@xp=\csname c@enum\romannumeral\the\@enumdepth\endcsname\relax
+			$({\the\m@syu})$}%
+		\setlength{\parindent}{1em}%
+	}{\end{enumerate}}
+	
+\newenvironment{step}
+	{\begin{enumerate}
+		\@xp\def\csname labelenum\romannumeral\the\@enumdepth\endcsname
+		{\@xp\m@syu\@xp=\csname c@enum\romannumeral\the\@enumdepth\endcsname\relax
+			Step\the\m@syu.}%
+		\setlength{\parindent}{1em}%
+	}{\end{enumerate}}
+	
+\newenvironment{eqv}[1][0]{%
+	\c@m@syu@eqv=#1\relax
+	\m@syu@@=\@enumdepth
+	\let\m@syu@eqv@item=\item
+	\noindent\bgroup
+	\ifnum \c@m@syu@eqv=\z@\relax
+		\equiv@label
+	\else
+		\equiv@label@
+	\fi}{\egroup\gdef\equiv@temp{\romannumeral}\par}
+	
+\newcommand\eqvlabelset[1][arabic]{%
+	\@xp\let\@xp\equiv@temp\csname equiv@label@#1\endcsname\relax
+	\ifx\equiv@temp\equiv@label@roman
+	\else
+	\ifx\equiv@temp\equiv@label@Roman
+	\else
+	\ifx\equiv@temp\equiv@label@kanzi
+	\else
+	\ifx\equiv@temp\equiv@label@arabic
+	\else
+	\ifx\equiv@temp\equiv@label@Alph
+	\else
+	\ifx\equiv@temp\equiv@label@alph
+	\else
+		\@m@syu@eqvlabel
+	\fi\fi\fi\fi\fi\fi}
+	
+\newenvironment{defiterm}[2][0em]
+	{\begin{enumerate}
+		\@xp\def\csname labelenum\romannumeral\the\@enumdepth\endcsname
+		{\@xp\m@syu\@xp=\csname c@enum\romannumeral\the\@enumdepth\endcsname\relax
+			(#2\the\m@syu)}\setlength{\leftskip}{#1}}
+	{\end{enumerate}}
+	
+%%
+%%///End of defining about command which used article
+%%	
+%-----Test 
+\def\shorttext{This is a meaningless sample text.}
+\def\Text{\shorttext\shorttext\shorttext\shorttext\shorttext}
+\def\longtext{\Text\Text\Text\Text\Text\par}
+
+\def\m@syu@space@char{^^`}
+
+\def\m@syu@string#1{%
+	\@tfor\m@syu@member:=#1\do{%
+		\ifx\m@syu@member\m@syu@space@char
+		\textvisiblespace
+		\else
+		\ifx\m@syu@member\empty
+		\textvisiblespace
+		\else\m@syu@member\fi
+		\fi}%
+}
+
+\def\m@syu@removespace#1{%
+	\def\m@syu@removedspace{}%
+	\@tfor\m@syu@member:=#1\do{%
+		\ifx\m@syu@member\empty
+		\edef\m@syu@removedspace{\m@syu@removedspace\m@syu@member\m@syu@space@char}%
+		\else
+		\edef\m@syu@removedspace{\m@syu@removedspace\m@syu@member}%
+		\fi}%
+}	
+
+\newcommand{\cmd}[2][\texttt]{\eghostguarded{#1{\symbol{92}\m@syu@string{#2}}}}
+
+\newcommand{\showme}[1]{%
+	\noindent
+	\cmd{#1}%
+	\par
+	\m@syu@removespace{#1}
+	\@xp\ifx\csname\m@syu@removedspace\endcsname\relax
+	\eghostguarded{\textbf{!undefined!}}%
+	\else
+	\@xp\meaning\csname\m@syu@removedspace\endcsname
+	\fi
+}
+\m@syu@elt
+%%
+%% End of file `askw3.sty'.
+%%
+%</askw3>
+%    \end{macrocode}
+% \Finale
+\endinput

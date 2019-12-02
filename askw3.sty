@@ -1,0 +1,1020 @@
+%%
+%% This is file `askw3.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% askw3.dtx  (with options: `askw3')
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the source file.
+%% 
+%% Any modified versions of this file must be renamed
+%% with new filenames distinct from askw3.sty.
+%% 
+%% For distribution of the original source see the terms
+%% for copying and modification in the file askw3.dtx.
+%% 
+%% This generated file may be distributed as long as the
+%% original source files, as listed above, are part of the
+%% same distribution. (The sources need not necessarily be
+%% in the same archive or directory.)
+
+%%-->
+
+%%
+%% This is file `askw3.sty',
+%% Copyright (c) 2017-2019 Ryoya Ando
+%%  Email  :  ryoya31026[a t]gmail.com
+%%
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{askw3}[2019/10/31 v2.0 add showme,cmd,mytitle]
+
+\RequirePackage{xkeyval} 
+\RequirePackage{amsmath,amssymb,amsthm} %%\let\@xp\expandafter
+\RequirePackage{ascmac} 
+\RequirePackage{bxghost} 
+\RequirePackage{ifluatex}
+
+\def\m@syu@elt{\relax}
+\def\m@syu@thmelt{\relax}
+\def\m@syu@thmtwoelt{\relax}
+\def\m@syu@zero@elt{\relax}
+%%
+%%///Define error message
+%%
+
+\def\@m@syu@toosmall{\PackageError{askw.sty}{The setenum argument must be 5 or more.}\@ehd}
+\def\@m@syu@samename{\PackageError{askw.sty}{This person is already registered.}\@ehd}
+\def\@m@syu@eqvlabel{\PackageError{askw.sty}{Use the specified argument.}\@ehd}
+
+\def\m@syu@oldcommand#1{\PackageWarning{askw.sty}{Use of \protect#1\space is not recommended.}}
+\def\@m@syu@notnamed{\PackageWarning{askw.sty}{Person date is not registerd.}}
+\def\@m@syu@alreadytitlesetted{\PackageWarning{askw.sty}{Title data are already setted, but I updated them.}}
+
+%%
+%%///End of define error message
+%%
+%%
+%%///Define Package Option
+%%
+\def\addoption#1{
+\@xp\newif\csname if@#1\endcsname
+\csname @#1false\endcsname
+\DeclareOption{#1}{\csname @#1true\endcsname}}
+
+\long\def\optiondef#1#2#3{
+\csname if@#1\endcsname
+#2
+\else
+#3
+\fi}
+
+\addoption{links}
+\addoption{zerostart}
+\addoption{thmnumthrice}
+\addoption{thmnumtwice}
+\addoption{sectionmark}
+\addoption{dottedtoc}
+\ProcessOptions
+
+\optiondef{links}{
+\@ifpackageloaded{hyperref}{
+\ifluatex\else
+\RequirePackage{pxjahyper}
+\fi
+\def\m@syu@href{%
+\refstepcounter{Item}%
+\protected@edef\@currentHlabel{Item.\arabic{Item}}}
+}{ 
+\RequirePackage[hidelinks,hyperfigures]{hyperref}
+\ifluatex\else
+\RequirePackage{pxjahyper}
+\fi
+\def\m@syu@href{%
+\refstepcounter{Item}%
+\protected@edef\@currentHlabel{Item.\arabic{Item}}}
+}
+}{\def\m@syu@href{\relax}}
+
+\optiondef{thmnumthrice}{
+\AtBeginDocument{
+\def\theequation{\thepart.\thesection.\arabic{equation}}
+\m@syu@thmelt}
+}{}
+
+\optiondef{thmnumtwice}{
+\AtBeginDocument{
+\def\theequation{\thesection.\arabic{equation}}
+\m@syu@thmtwoelt}
+}{}
+
+\optiondef{zerostart}{
+\c@figure=\m@ne
+\c@table=\m@ne
+\c@footnote=\m@ne
+\c@section=\m@ne
+\def\@stpelt#1{\global \csname c@#1\endcsname -2\stepcounter {#1}}
+\AtBeginDocument{\m@syu@zero@elt}
+}{}
+
+\optiondef{sectionmark}{
+\def\@sect#1#2#3#4#5#6[#7]#8{%
+\@xp\let\@xp\m@syu@tempa\csname the#1\endcsname
+\@xp\def\csname the#1\endcsname{\S\m@syu@tempa}%
+\ifnum #2>\c@secnumdepth
+\let\@svsec\@empty
+\else
+\refstepcounter{#1}%
+\protected@edef\@svsec{\@seccntformat{#1}\relax}%
+\fi
+\@tempskipa #5\relax
+\ifdim \@tempskipa<\z@
+\def\@svsechd{%
+#6{\hskip #3\relax
+\@svsec #8}%
+\csname #1mark\endcsname{#7}%
+\addcontentsline{toc}{#1}{%
+\ifnum #2>\c@secnumdepth \else
+\protect\numberline{\csname the#1\endcsname}%
+\fi
+#7}}%
+\else
+\begingroup
+\interlinepenalty \@M
+#6{%
+\@hangfrom{\hskip #3\relax\@svsec}%
+#8\@@par}%
+\endgroup
+\csname #1mark\endcsname{#7}%
+\addcontentsline{toc}{#1}{%
+\ifnum #2>\c@secnumdepth \else
+\protect\numberline{\csname the#1\endcsname}%
+\fi
+#7}%
+\fi
+\@xp\let\csname the#1\endcsname\m@syu@tempa
+\let\m@syu@tempa\relax
+\@xsect{#5}
+}
+}{}
+
+\optiondef{dottedtoc}{
+\def\l@part#1#2{%
+\ifnum \c@tocdepth >-2
+\addpenalty{\@secpenalty}%
+\addvspace{2.25em \@plus\p@}%
+\begingroup
+\parindent\z@
+\rightskip\@tocrmarg
+\parfillskip-\rightskip
+\leavevmode\headfont
+\setlength\@lnumwidth{4zw}%
+\advance\leftskip\@lnumwidth
+\hskip-\leftskip #1\nobreak
+\leaders\hbox{\normalfont$\m@th \mkern
+\@dotsep mu\hbox{.}\mkern \@dotsep mu$}\hfill
+\nobreak\hbox to\@pnumwidth{\hss#2}\par
+\endgroup
+\fi}
+\if@sectionmark
+\def\l@section#1#2{%
+\ifnum \c@tocdepth >\z@
+\addpenalty{\@secpenalty}%
+\addvspace{1.0em \@plus\jsc@mpt}%
+\begingroup
+\parindent1.5em
+\rightskip\@tocrmarg
+\parfillskip-\rightskip
+\leavevmode\headfont
+\setlength\@lnumwidth{\jsc@tocl@width}\advance\@lnumwidth 2zw
+\advance\leftskip\@lnumwidth \hskip-\leftskip
+#1\nobreak\hfil\nobreak\parindent1.5em
+\hbox to\@pnumwidth{\hss#2}\par
+\endgroup
+\fi}
+\fi
+}{}
+%%///End of Define Package option
+%%
+\newcount\m@syu
+\newcount\m@syu@
+\newcount\m@syu@@
+
+\newcount\m@syu@name
+\newcount\m@syu@sort@length
+\newcounter{m@syu@eqv}
+
+\newlength\m@syu@length
+\newlength\m@syu@length@
+
+\m@syu@name=\z@
+
+%%%///Define theorem environment
+\newcommand{\makethm}{\@ifstar{\makethm@star}{\makethm@nonstar}}
+\newcommand{\thmnotefontchange}[1]{\gdef\m@syu@thm@notefont{#1}}
+
+\def\m@syu@punct{\relax}
+
+\def\makethm@star#1#2{%
+\newenvironment{#1}[1][]{%
+\begin{itembox}[l]{#2\m@syu@thmlabel{##1}}
+}{\end{itembox}}%
+}
+
+\def\makethm@nonstar#1{%
+\let\@tempa\relax
+\def\@tempa{\@oparg{\makethm@{#1}}[]}%
+\@tempa
+}
+
+\def\makethm@#1[#2]#3{%
+\ifx\relax#2\relax
+\@ifundefined{c@#1}{%
+\newcounter{#1}%
+\g@addto@macro\m@syu@thmelt{%
+\@xp\def\csname the#1\endcsname{\thepart.\arabic{section}.\arabic{#1}}%
+\@addtoreset{#1}{section}}%
+\g@addto@macro\m@syu@thmtwoelt{%
+\@xp\def\csname the#1\endcsname{\arabic{section}.\arabic{#1}}%
+\@addtoreset{#1}{section}}%
+\g@addto@macro\m@syu@zero@elt{\setcounter{#1}{-1}}%
+\newenvironment{#1}[1][]{%
+\addtocounter{#1}{1}%
+\protected@edef\@currentlabel{#3\csname the#1\endcsname}%
+\begin{itembox}[l]{%
+\m@syu@href
+#3\m@syu@punct\textit{\csname the#1\endcsname}\m@syu@thmlabel{##1}}%
+}{\end{itembox}}%
+}{%
+\PackageError{askw.sty}{'#1' environment is already defined}\@eha
+}%
+\else
+\@ifundefined{c@#2}{\@nocounterr{#2}%
+}{%
+\newenvironment{#1}[1][]{%
+\addtocounter{#2}{1}%
+\protected@edef\@currentlabel{#3\csname the#2\endcsname}%
+\begin{itembox}[l]{%
+\m@syu@href
+#3\textit{\csname the#2\endcsname}\m@syu@thmlabel{##1}}%
+}{\end{itembox}}%
+}%
+\fi
+}
+
+\def\m@syu@thm@notefont{\fontseries\mddefault\upshape}
+
+\def\thmhead@plain#1#2#3{%
+\m@syu@href
+\thmname{#1}\thmnumber{\@ifnotempty{#1}{ }\@upn{#2}}%
+\thm@notefont{\m@syu@thm@notefont}%
+\thmnote{ {\the\thm@notefont(#3)}}%
+}
+
+\def\@xthm#1#2[#3]{%
+\ifx\relax#3\relax
+\newcounter{#1}%
+\else
+\newcounter{#1}[#3]%
+\@xp\xdef\csname the#1\endcsname{\@xp\@nx\csname the#3\endcsname
+\@thmcountersep\@thmcounter{#1}}%
+\fi
+\g@addto@macro\m@syu@thmelt{%
+\@xp\def\csname the#1\endcsname{\thepart.\the.\arabic{#1}}%
+\@addtoreset{#1}{section}}%
+\g@addto@macro\m@syu@thmtwoelt{%
+\@xp\def\csname the#1\endcsname{\thesection.\arabic{#1}}%
+\@addtoreset{#1}{section}}%
+\g@addto@macro\m@syu@zero@elt{\setcounter{#1}{-1}}%
+\toks@{#2}%
+\@xp\xdef\csname#1\endcsname{%
+\@nx\@thm{%
+\let\@nx\thm@swap
+\if S\thm@swap\@nx\@firstoftwo\else\@nx\@gobble\fi
+\@xp\@nx\csname th@\the\thm@style\endcsname}%
+{#1}{\the\toks@}}%
+}
+
+\def\m@syu@thmlabel#1{%
+\def\m@syu@thm@{#1}%
+\ifx\m@syu@thm@\empty
+\relax
+\else
+\nobreakspace(#1)
+\fi
+}
+
+\newcommand{\thmnumonly}[1]{%
+\g@addto@macro\m@syu@thmelt{%
+\@xp\def\csname the#1\endcsname{\arabic{#1}}%
+}%
+}
+
+\newcommand{\thmlinebreak}{\def\thm@linebreak{Do it!}}
+
+\AtBeginDocument{%
+\def\@begintheorem#1#2[#3]{%
+\deferred@thm@head{%
+\the\thm@headfont\thm@indent
+\@ifempty{#1}{\let\thmname\@gobble}{\let\thmname\@iden}%
+\@ifempty{#2}{\let\thmnumber\@gobble}{\let\thmnumber\@iden}%
+\@ifempty{#3}{\let\thmnote\@gobble}{\let\thmnote\@iden}%
+\thm@swap\swappedhead
+\thmhead{#1}{#2}{#3}%
+\the\thm@headpunct\thmheadnl\hskip\thm@headsep}%
+\global\protected@edef\@currentlabel{#1#2}%
+\@ifundefined{thm@linebreak}{}{\quad\par}}%
+}
+
+\renewenvironment{proof}[1][\proofname]{%
+\pushQED{\qed}%
+\normalfont \topsep6\p@\@plus6\p@\relax
+\trivlist
+\@itempenalty\@M
+\item[\hskip\labelsep
+\itshape
+#1\@addpunct{.}]\quad
+\@ifundefined{thm@linebreak}{}{%
+\@ifnextchar\begin{\item}{\setlength{\itemindent}{1em}\item}%
+}%
+}{\popQED\endtrivlist\@endpefalse
+}
+
+\newenvironment{answer}[1][\textbf{解答}]{%
+\let\m@syu@qed\qedsymbol
+\def\qedsymbol{(解答終)}%
+\def\proofname@{#1}%
+\pushQED{\qed}%
+\normalfont \topsep6\p@\@plus6\p@\relax
+\trivlist
+\@itempenalty\@M
+\item[\hskip\labelsep
+\itshape
+#1\@addpunct{.}]\quad
+\@ifundefined{thm@linebreak}{}{%
+\@ifnextchar\begin{\item}{\setlength{\itemindent}{1em}\item}%
+}{%
+\popQED\endtrivlist\@endpefalse
+\let\qedsymbol\m@syu@qed
+}
+}
+
+%%
+%%///End of define theorem environment
+%%
+%%%
+
+\def\part{%
+\if@noskipsec \leavevmode \fi
+\par
+\addvspace{4ex}%
+\if@english \@afterindentfalse \else \@afterindenttrue \fi
+\secdef\m@syu@part\m@syu@spart %\part{X}-> \m@syu@part[X]{X}
+}
+
+\def\m@syu@part{%
+\def\m@syu@finalrun{\m@syu@part@}%
+\@ifnextchar[{\m@syu@get@one}{%
+\def\m@syu@label@one{\empty}%
+\def\m@syu@label@two{\empty}%
+\m@syu@finalrun}%
+}
+
+\def\m@syu@part@{%
+\@xp\ifx\m@syu@label@two\empty
+\def\m@syu@part@eng{\m@syu@label@one}%
+\else
+\def\m@syu@part@eng{\m@syu@label@two}%
+\fi
+\@part[\m@syu@part@eng]%
+}
+
+\def\@part[#1]#2{%
+\@xp\ifx\m@syu@label@two\empty %if \part{text} or \part[text]{text}
+\def\m@syu@parttoc{#2}%
+\else
+\def\m@syu@parttoc{\m@syu@label@one}%
+\fi   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\ifx\m@syu@label@two\empty %if \part[text][]{text}
+\def\m@syu@part@chka{\relax}%
+\def\m@syu@part@chkb{\relax}%
+\else                      %if \part[text]{text} ,\part[X][Y]{Z}
+\def\m@syu@part@chka{#1}%
+\def\m@syu@part@chkb{#2}%
+\fi
+\def\m@syu@part@tempa{#2}%
+\ifx\m@syu@label@one\m@syu@part@tempa %if \part{text}
+\@xp\ifx\m@syu@label@two\empty
+\def\m@syu@part@chka{\relax}%
+\def\m@syu@part@chkb{\relax}%
+\else\fi
+\else\fi
+\ifx\m@syu@part@chka\m@syu@part@chkb
+\else\newpage\thispagestyle{plain}%
+\fi
+\ifnum \c@secnumdepth>\m@ne
+\refstepcounter{part}%
+\ifx\m@syu@partchanged\relax
+\else\refstepcounter{m@syu@part}%
+\fi
+\addcontentsline{toc}{part}{%
+\prepartname\thepart\postpartname\hspace{1zw}\m@syu@parttoc}{}%
+\else
+\addcontentsline{toc}{part}{#2}{}%
+\fi
+\markboth{\prepartname\thepart\postpartname\hspace{1zw}\m@syu@parttoc}{}%
+\bgroup
+\parindent\z@
+\raggedright
+\interlinepenalty \@M
+\normalfont
+\ifnum \c@secnumdepth >\m@ne
+\ifx\m@syu@part@chka\m@syu@part@chkb
+\Large\headfont\prepartname\thepart\postpartname
+\par\nobreak
+\huge \headfont #2
+\else
+\setlength{\m@syu@length}{\textwidth}%
+\settowidth{\m@syu@length@}{\huge\hspace*{.5em}\headfont\prepartname\thepart\postpartname}%
+\addtolength{\m@syu@length}{-\m@syu@length@}%
+\settowidth{\m@syu@length@}{\huge\headfont #2}%
+\addtolength{\m@syu@length}{-\m@syu@length@}%
+\addtolength{\m@syu@length}{-1em}%
+\begin{tabular}{@{\vrule width 2pt}c}%
+\huge\hspace*{.5em}\headfont\prepartname\thepart\postpartname\hspace{\m@syu@length}\huge \headfont #2\\[10pt]%
+\setlength{\m@syu@length}{\textwidth}%
+\settowidth{\m@syu@length@}{\Large---\textsl{#1}}%
+\addtolength{\m@syu@length}{-\m@syu@length@}%
+\addtolength{\m@syu@length}{-1em}%
+\hspace{\m@syu@length}\Large---\textsl{#1}\\
+\noalign{\hrule width \textwidth height 2pt}%
+\end{tabular}
+\fi
+\fi
+\markboth{\prepartname\thepart\postpartname\hspace{1zw}#2}{}\par
+\egroup
+\nobreak
+\vskip 3ex
+\@afterheading
+}
+
+\def\m@syu@spart#1{%
+{%
+\parindent \z@ \raggedright
+\interlinepenalty \@M
+\normalfont
+\huge \headfont #1\par}%
+\markboth{#1}{#1}%
+\nobreak
+\vskip 3ex
+\@afterheading
+}
+
+\def\@ifnextbracket{(}
+
+\def\equiv@label{%
+\m@syu=\@ne\relax
+\def\item{%
+\ifnum\m@syu@@=\@enumdepth
+\ifnum \m@syu>\@ne\relax
+\par\noindent
+\fi
+\bgroup\interlinepenalty\@M 
+\ifnum \m@syu=\@ne\relax
+\mbox{($\Longrightarrow$)}%
+\else
+\mbox{($\Longleftarrow$)}%
+\fi
+\global\advance\m@syu\@ne\relax\\\quad\egroup
+\else
+\m@syu@eqv@item
+\fi
+}%
+}
+
+\def\equiv@label@roman{\romannumeral}
+\def\equiv@label@Roman{\@xp\@Roman}
+\def\equiv@label@arabic{\relax}
+\def\equiv@label@alph{\@xp\@alph}
+\def\equiv@label@Alph{\@xp\@Alph}
+\def\equiv@label@kanzi{\kansuji}
+
+\def\equiv@temp{\romannumeral}
+
+\def\equiv@label@{%
+\m@syu=\@ne\relax
+\renewcommand{\item}[1][0]{%
+\ifnum \@enumdepth=\m@syu@@\relax
+\ifnum \m@syu>\@ne\relax
+\par\noindent
+\fi
+\ifnum ##1=\z@
+\else\m@syu=##1\relax
+\fi 
+\bgroup\interlinepenalty\@M
+\m@syu@=\m@syu\relax
+\global\advance\m@syu@\@ne\relax
+\ifnum \m@syu=\c@m@syu@eqv\relax
+\mbox{(\equiv@temp\the\m@syu)$\Longrightarrow$(\equiv@temp\the\@ne)}%
+\else
+\mbox{(\equiv@temp\the\m@syu)$\Longrightarrow$(\equiv@temp\the\m@syu@)}%
+\fi
+\global\advance\m@syu\@ne\relax\\\quad\egroup
+\else
+\m@syu@eqv@item
+\fi
+}%
+}
+
+\def\namelabel@push#1#2#3{%
+\ifnum\m@syu@name=\z@
+\def\m@syu@named{\relax}%
+\global\advance\m@syu@name\@ne
+\@xp\def\csname m@syu@name@\the\m@syu@name\endcsname{#1}%
+\@xp\def\csname m@syu@born@\the\m@syu@name\endcsname{#2}%
+\@xp\def\csname m@syu@died@\the\m@syu@name\endcsname{#3}%
+\else
+\def\m@syu@namelabelchk{#1}%
+\global\advance\m@syu@name\@ne
+\m@syu=\@ne
+\@whilenum\m@syu<\m@syu@name
+\do{%
+\@xp\ifx\csname m@syu@name@\the\m@syu\endcsname\m@syu@namelabelchk
+\@m@syu@samename
+\fi
+\global\advance\m@syu\@ne
+}%
+\@xp\def\csname m@syu@name@\the\m@syu@name\endcsname{#1}%
+\@xp\def\csname m@syu@born@\the\m@syu@name\endcsname{#2}%
+\@xp\def\csname m@syu@died@\the\m@syu@name\endcsname{#3}%
+\fi 
+}
+
+\def\namelabel@#1#2#3{%
+\namelabel@push{#1}{#2}{#3}%
+\footnotetext{#1,#2-#3}%
+}
+
+\def\namelabel@@#1#2#3{%
+\namelabel@push{#1}{#2}{#3}%
+\footnote{#1,#2-#3}%
+}
+
+\def\m@syu@finalrun{\relax}
+
+\def\m@syu@get@one[#1]{%
+\def\m@syu@label@one{#1}%
+\@ifnextchar[{\m@syu@get@two}{%
+\def\m@syu@label@two{\empty}%
+\m@syu@finalrun
+}%
+}
+
+\def\m@syu@get@two[#1]{%
+\def\m@syu@label@two{#1}%
+\m@syu@finalrun
+}
+
+%%
+%%///Define the command used in the preamble
+%%
+\newcommand{\setenumdepth}[1]{%
+\ifnum #1<5
+\@m@syu@toosmall
+\else
+\m@syu=#1\relax
+\def\list##1##2{%
+\ifnum \@listdepth >\m@syu
+\@toodeep
+\else
+\global\advance\@listdepth\@ne
+\fi
+\rightmargin\z@
+\listparindent\z@
+\itemindent\z@
+\csname @list\romannumeral\the\@listdepth\endcsname
+\def\@itemlabel{##1}%
+\let\makelabel\@mklab
+\@nmbrlistfalse
+##2\relax
+\@trivlist
+\parskip\parsep
+\parindent\listparindent
+\advance\linewidth -\rightmargin
+\advance\linewidth -\leftmargin
+\advance\@totalleftmargin \leftmargin
+\parshape \@ne \@totalleftmargin \linewidth
+\ignorespaces
+}%
+\m@syu=\thr@@\relax
+\@whilenum \m@syu<#1 \relax
+\do{\@definecounter{enum\romannumeral\the\m@syu}%
+\advance\m@syu\@ne}%
+\@definecounter{enum\romannumeral\the\m@syu}%
+\def\enumerate{%
+\ifnum \@enumdepth >#1 \@toodeep\else
+\advance\@enumdepth \@ne
+\edef\@enumctr{enum\romannumeral\the\@enumdepth}\fi
+\@ifnextchar[{\@@enum@}{\@enum@}}%
+\fi
+}
+
+\newcommand{\addtoreset}[2]{\@addtoreset{#1}{#2}}
+
+\newcommand{\myheader}[1]{%
+\pagestyle{fancy}%
+\def\sectionmark##1{\markright{%
+\ifnum \c@secnumdepth >\z@ \thesection \hskip1\zw\fi
+##1}}%
+\lhead{\nouppercase{\leftmark}}%
+\chead{#1}%
+\rhead{\nouppercase{\rightmark}}%
+\fancyfoot[C]{\thepage}%
+}
+
+\newif\ifm@syu@setmytitle
+\m@syu@setmytitlefalse
+
+\define@key[m@syu]{setmytitle}{author}[Jone Doe]{\def\m@syu@author{#1}}
+\define@key[m@syu]{setmytitle}{date}[\today]{\def\m@syu@date{#1}}
+
+\presetkeys[m@syu]{setmytitle}{author,date}{}
+
+\newcommand{\setmytitle}[1]{%
+\ifm@syu@setmytitle
+\@m@syu@alreadytitlesetted
+\fi
+\setkeys[m@syu]{setmytitle}{#1}%
+\m@syu@setmytitletrue 
+}
+
+\newcommand{\mytitle}{\@ifnextchar[{\setmytitle@sec}{\m@syu@mytitle}}
+\def\setmytitle@sec[#1]{%
+\ifm@syu@setmytitle
+\@m@syu@alreadytitlesetted
+\fi
+\setkeys[m@syu]{setmytitle}{#1}%
+\m@syu@setmytitletrue 
+\m@syu@mytitle
+}
+
+\AtBeginDocument{%
+\@ifpackageloaded{fancyhdr}{%
+\def\m@syu@mytitle#1{%
+\ifm@syu@setmytitle
+\else\setkeys[m@syu]{setmytitle}{}%
+\fi
+\title{#1}\author{\m@syu@author}\date{\m@syu@date}%
+\maketitle
+\myheader{#1}%
+\thispagestyle{empty}%
+\c@page=\z@
+}%
+}{%
+\def\m@syu@mytitle#1{%
+\ifm@syu@setmytitle
+\else\setkeys[m@syu]{setmytitle}{}%
+\fi
+\title{#1}\author{\m@syu@author}\date{\m@syu@date}%
+\maketitle
+\c@page=\z@
+}%
+}%
+}%
+
+%%
+%%///End of defining about command which used preamble
+%%
+%%
+%%///Define command which use in article
+%%
+\let\m@syu@partchanged\relax
+\newcounter{m@syu@part}
+\newcommand{\thepartchange}[1][Alph]{%
+\setcounter{m@syu@part}{0}%
+\def\m@syu@partchanged{changed}%
+\let\m@syu@orig@thepart=\thepart
+\newcount\m@syu@part@save
+\m@syu@part@save=\c@part
+\@xp\let\@xp\partchange@temp\csname equiv@label@#1\endcsname\relax
+\ifx\partchange@temp\equiv@label@roman
+\else
+\ifx\partchange@temp\equiv@label@Roman
+\else
+\ifx\partchange@temp\equiv@label@kanzi
+\else
+\ifx\partchange@temp\equiv@label@arabic
+\else
+\ifx\partchange@temp\equiv@label@Alph
+\else
+\ifx\partchange@temp\equiv@label@alph
+\else
+\m@syu@eqvlabel %Error message
+\fi\fi\fi\fi\fi\fi
+\gdef\thepart{\partchange@temp\the\c@m@syu@part}%
+}
+
+\newcommand{\thepartchangefinish}{%
+\let\m@syu@partchanged\relax
+\let\thepart\m@syu@orig@thepart
+\c@part=\m@syu@part@save
+}
+
+\newcommand{\middleoplus}{\mathchar"134C}
+
+\newcommand{\A}{\mathbb{A}}
+\newcommand{\Co}{\mathbb{C}}
+
+\ifluatex
+\else
+\newcommand{\C}{%
+\mathbb{C}%
+\PackageWarning{askw.sty}{Use \protect\Co\space instead \protect\C\space.}%
+} %
+\fi
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\F}{\mathbb{F}}
+
+\let\pilcrow\P
+\renewcommand{\P}{\mathbb{P}}
+\let\mP\P 
+
+\newcommand{\mkset}[2]{\left\{#1\mathrel{}\middle|\mathrel{}#2\right\}}
+
+\newcommand{\nitem}{\@ifnextchar<{\@nitem@}{\def\nitem@temp{1}\@nitem}}
+
+\def\@nitem@<#1>{%
+\def\nitem@temp{#1}%
+\@nitem}
+
+\newcommand{\@nitem}[2][n]{#2_\nitem@temp,\dots,#2_{#1}}
+
+\newcommand{\nplace}[2]{%
+\ifnum #1>\z@ \relax
+\m@syu=\@ne\relax
+\@whilenum\m@syu<#1\relax
+\do{{#2}_{\the\m@syu},\advance\m@syu\@ne\relax}%
+{#2}_{#1}%
+\fi
+}
+
+\newcommand{\ntimes}[2]{%
+\m@syu=\@ne\relax
+\@whilenum\m@syu<#1\relax
+\do{#2\relax\advance\m@syu\@ne}%
+#2
+}
+
+\newcommand{\quo}[1]{``#1''}
+\newcommand{\uml}[1]{\"#1}
+
+\newcommand{\symlist}[2]{%
+\mbox{$#1$}%
+\setlength{\m@syu@length}{6cm}%
+\settowidth{\m@syu@length@}{\mbox{$#1$}}%
+\addtolength{\m@syu@length}{-\m@syu@length@}%
+\leaders\hbox{\normalfont$\m@th \mkern%
+\@dotsep mu\hbox{.}\mkern \@dotsep mu$}\hskip\m@syu@length
+#2\par
+}
+
+\newcommand{\namelabel}{\@ifstar{\namelabel@}{\namelabel@@}}
+\newcommand{\phantomnamelabel}[3]{\namelabel@push{#1}{#2}{#3}}
+\newcommand{\hnamelabel}[4][\m@syu@name@nooption]{%
+\def\m@syu@name@nooption{#2}%
+#2\ (#3-#4)\namelabel@push{#1}{#3}{#4}%
+}
+
+\newcommand{\namelabelOP}{%
+\@ifundefined{m@syu@named}{\@m@syu@notnamed}{%
+\newcount\c@m@syu@borna
+\newcount\c@m@syu@bornb
+\newcount\c@m@syu@dieda
+\newcount\c@m@syu@diedb
+\@tempcnta=\@ne
+\m@syu@sort@length=\m@syu@name
+\@whilenum\@tempcnta<\m@syu@name\do{%
+\m@syu=\@ne
+\m@syu@=\@ne
+\@whilenum\m@syu<\m@syu@sort@length
+\do{%
+\global\advance\m@syu@\@ne
+\@xp\c@m@syu@borna\@xp=\csname m@syu@born@\the\m@syu\endcsname\relax
+\@xp\c@m@syu@bornb\@xp=\csname m@syu@born@\the\m@syu@\endcsname\relax
+\ifnum\c@m@syu@borna=\c@m@syu@bornb
+\xdef\m@syu@emptychka{\csname m@syu@died@\the\m@syu\endcsname}
+\xdef\m@syu@emptychkb{\csname m@syu@died@\the\m@syu@\endcsname}
+\ifx\m@syu@emptychka\empty
+\c@m@syu@dieda=\@M
+\ifx\m@syu@emptychkb\empty
+\c@m@syu@diedb=\@M
+\else
+\@xp\c@m@syu@diedb\@xp=\csname m@syu@died@\the\m@syu@\endcsname\relax
+\fi
+\else
+\@xp\c@m@syu@dieda\@xp=\csname m@syu@died@\the\m@syu\endcsname\relax
+\ifx\m@syu@emptychkb\empty
+\c@m@syu@diedb=\@M
+\else
+\@xp\c@m@syu@diedb\@xp=\csname m@syu@died@\the\m@syu@\endcsname\relax
+\fi
+\fi
+\ifnum\c@m@syu@dieda>\c@m@syu@diedb
+\xdef\m@syu@nametemp{\csname m@syu@name@\the\m@syu\endcsname}
+\xdef\m@syu@borntemp{\csname m@syu@born@\the\m@syu\endcsname}
+\xdef\m@syu@diedtemp{\csname m@syu@died@\the\m@syu\endcsname}
+\@xp\xdef\csname m@syu@name@\the\m@syu\endcsname{\csname m@syu@name@\the\m@syu@\endcsname}
+\@xp\xdef\csname m@syu@born@\the\m@syu\endcsname{\csname m@syu@born@\the\m@syu@\endcsname}
+\@xp\xdef\csname m@syu@died@\the\m@syu\endcsname{\csname m@syu@died@\the\m@syu@\endcsname}
+\@xp\xdef\csname m@syu@name@\the\m@syu@\endcsname{\m@syu@nametemp}
+\@xp\xdef\csname m@syu@born@\the\m@syu@\endcsname{\m@syu@borntemp}
+\@xp\xdef\csname m@syu@died@\the\m@syu@\endcsname{\m@syu@diedtemp}
+\fi
+\else
+\ifnum\c@m@syu@borna>\c@m@syu@bornb
+\xdef\m@syu@nametemp{\csname m@syu@name@\the\m@syu\endcsname}
+\xdef\m@syu@borntemp{\csname m@syu@born@\the\m@syu\endcsname}
+\xdef\m@syu@diedtemp{\csname m@syu@died@\the\m@syu\endcsname}
+\@xp\xdef\csname m@syu@name@\the\m@syu\endcsname{\csname m@syu@name@\the\m@syu@\endcsname}
+\@xp\xdef\csname m@syu@born@\the\m@syu\endcsname{\csname m@syu@born@\the\m@syu@\endcsname}
+\@xp\xdef\csname m@syu@died@\the\m@syu\endcsname{\csname m@syu@died@\the\m@syu@\endcsname}
+\@xp\xdef\csname m@syu@name@\the\m@syu@\endcsname{\m@syu@nametemp}
+\@xp\xdef\csname m@syu@born@\the\m@syu@\endcsname{\m@syu@borntemp}
+\@xp\xdef\csname m@syu@died@\the\m@syu@\endcsname{\m@syu@diedtemp} 
+\fi
+\fi
+\global\advance\m@syu\@ne
+}
+\advance\m@syu@sort@length\m@ne
+\advance\@tempcnta\@ne
+}
+\m@syu=\@ne
+\advance\m@syu@name\@ne
+\@whilenum\m@syu<\m@syu@name
+\do{
+\xdef\m@syu@emptychka{\csname m@syu@died@\the\m@syu\endcsname}
+\ifx\m@syu@emptychka\empty
+\@xp\def\csname m@syu@died@\the\m@syu\endcsname{\phantom{3333}}
+\else
+\@xp\c@m@syu@dieda\@xp=\csname m@syu@died@\the\m@syu\endcsname\relax
+\ifnum\c@m@syu@dieda<1000
+\let\m@syu@phantom\phantom
+\let\phantom\relax
+\def\m@syu@phantom@{\phantom{3}}
+\@xp\xdef\csname m@syu@died@\the\m@syu\endcsname{\the\c@m@syu@dieda\m@syu@phantom@}
+\let\phantom\m@syu@phantom%
+\fi
+\fi
+\par
+\csname m@syu@name@\the\m@syu\endcsname.\hfill
+\csname m@syu@born@\the\m@syu\endcsname-\csname m@syu@died@\the\m@syu\endcsname\par
+\global\advance\m@syu\@ne}%
+}%
+}
+
+\newcommand{\ses}{%
+\def\m@syu@finalrun{\ses@making}%
+\@ifnextchar[{\m@syu@get@one}{%
+\def\m@syu@label@one{\empty}%
+\def\m@syu@label@two{\empty}%
+\m@syu@finalrun}%
+}
+
+\def\ses@making#1#2#3{%
+\begin{tikzcd}%
+0
+\arrow[r]\pgfmatrixnextcell#1\arrow[r,"\m@syu@label@one"]
+\pgfmatrixnextcell#2\arrow[r,"\m@syu@label@two"]
+\pgfmatrixnextcell#3\arrow[r]\pgfmatrixnextcell
+0
+\end{tikzcd}%
+}
+
+\newcommand{\nxcell}{\@ifnextchar[{\nxcell@label}{\nxcell@nolabel}}
+
+\def\nxcell@label[#1]{{}\arrow[r,"#1"]\pgfmatrixnextcell{}}
+\def\nxcell@nolabel{{}\arrow[r]\pgfmatrixnextcell{}}
+
+\newenvironment{romanitemize}
+{\begin{enumerate}
+\@xp\def\csname labelenum\romannumeral\the\@enumdepth\endcsname
+{\@xp\m@syu\@xp=\csname c@enum\romannumeral\the\@enumdepth\endcsname\relax
+(\romannumeral\the\m@syu)}%
+\setlength{\parindent}{1em}%
+}{\end{enumerate}}
+
+\newenvironment{circitemize}
+{\begin{enumerate}
+\@xp\def\csname labelenum\romannumeral\the\@enumdepth\endcsname
+{\@xp\m@syu\@xp=\csname c@enum\romannumeral\the\@enumdepth\endcsname\relax
+${\the\m@syu}^{\circ}$)}%
+\setlength{\parindent}{1em}%
+}{\end{enumerate}}
+
+\newenvironment{numitemize}
+{\begin{enumerate}
+\@xp\def\csname labelenum\romannumeral\the\@enumdepth\endcsname
+{\@xp\m@syu\@xp=\csname c@enum\romannumeral\the\@enumdepth\endcsname\relax
+$({\the\m@syu})$}%
+\setlength{\parindent}{1em}%
+}{\end{enumerate}}
+
+\newenvironment{step}
+{\begin{enumerate}
+\@xp\def\csname labelenum\romannumeral\the\@enumdepth\endcsname
+{\@xp\m@syu\@xp=\csname c@enum\romannumeral\the\@enumdepth\endcsname\relax
+Step\the\m@syu.}%
+\setlength{\parindent}{1em}%
+}{\end{enumerate}}
+
+\newenvironment{eqv}[1][0]{%
+\c@m@syu@eqv=#1\relax
+\m@syu@@=\@enumdepth
+\let\m@syu@eqv@item=\item
+\noindent\bgroup
+\ifnum \c@m@syu@eqv=\z@\relax
+\equiv@label
+\else
+\equiv@label@
+\fi}{\egroup\gdef\equiv@temp{\romannumeral}\par}
+
+\newcommand\eqvlabelset[1][arabic]{%
+\@xp\let\@xp\equiv@temp\csname equiv@label@#1\endcsname\relax
+\ifx\equiv@temp\equiv@label@roman
+\else
+\ifx\equiv@temp\equiv@label@Roman
+\else
+\ifx\equiv@temp\equiv@label@kanzi
+\else
+\ifx\equiv@temp\equiv@label@arabic
+\else
+\ifx\equiv@temp\equiv@label@Alph
+\else
+\ifx\equiv@temp\equiv@label@alph
+\else
+\@m@syu@eqvlabel
+\fi\fi\fi\fi\fi\fi}
+
+\newenvironment{defiterm}[2][0em]
+{\begin{enumerate}
+\@xp\def\csname labelenum\romannumeral\the\@enumdepth\endcsname
+{\@xp\m@syu\@xp=\csname c@enum\romannumeral\the\@enumdepth\endcsname\relax
+(#2\the\m@syu)}\setlength{\leftskip}{#1}}
+{\end{enumerate}}
+
+%%
+%%///End of defining about command which used article
+%% 
+\def\shorttext{This is a meaningless sample text.}
+\def\Text{\shorttext\shorttext\shorttext\shorttext\shorttext}
+\def\longtext{\Text\Text\Text\Text\Text\par}
+
+\def\m@syu@space@char{^^`}
+
+\def\m@syu@string#1{%
+\@tfor\m@syu@member:=#1\do{%
+\ifx\m@syu@member\m@syu@space@char
+\textvisiblespace
+\else
+\ifx\m@syu@member\empty
+\textvisiblespace
+\else\m@syu@member\fi
+\fi}%
+}
+
+\def\m@syu@removespace#1{%
+\def\m@syu@removedspace{}%
+\@tfor\m@syu@member:=#1\do{%
+\ifx\m@syu@member\empty
+\edef\m@syu@removedspace{\m@syu@removedspace\m@syu@member\m@syu@space@char}%
+\else
+\edef\m@syu@removedspace{\m@syu@removedspace\m@syu@member}%
+\fi}%
+} 
+
+\newcommand{\cmd}[2][\texttt]{\eghostguarded{#1{\symbol{92}\m@syu@string{#2}}}}
+
+\newcommand{\showme}[1]{%
+\noindent
+\cmd{#1}%
+\par
+\m@syu@removespace{#1}
+\@xp\ifx\csname\m@syu@removedspace\endcsname\relax
+\eghostguarded{\textbf{!undefined!}}%
+\else
+\@xp\meaning\csname\m@syu@removedspace\endcsname
+\fi
+}
+\m@syu@elt
+%%
+%% End of file `askw3.sty'.
+%%
+\endinput
+%%
+%% End of file `askw3.sty'.
