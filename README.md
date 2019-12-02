@@ -6,10 +6,10 @@ askw3 package
 
 ### 前提環境
 
-* TeX エンジン pTeX/upTeX
-- Yato (aka. "ZR")氏による"BXjscls"パッケージバンドルのもとで　LuaTeX,XeTeX
-* フォーマット: LaTeX, (bx)jsclsを想定
-* DVI ウェア: 不問（pTeX系列の場合はdvipdfmxを想定）
+* TeX エンジン： pTeX/upTeX
+	- Yato (aka. "ZR")氏による"BXjscls"パッケージバンドルのもとで　LuaTeX,XeTeX
+* フォーマット： LaTeX, (bx)jsclsを想定
+* DVI ウェア： 不問（pTeX系列の場合はdvipdfmxを想定）
 * 必須パッケージ
 - xkeyval
 - iftex
@@ -21,9 +21,9 @@ askw3 package
 - （場合により）pxjahyper
 
 ### 構成物
-* `askw3.pdf`:説明書（DocStrip 文書）
-* `askw3.dtx`: DocStrip ソースファイル
-* `askw3.ins`: DocStrip インストーラファイル
+* `askw3.pdf`：説明書（DocStrip 文書）
+* `askw3.dtx`： DocStrip ソースファイル
+* `askw3.ins`： DocStrip インストーラファイル
 
 ### インストール
 
