@@ -37,7 +37,7 @@ $ mktexlsr	（必要に応じて）
 
 ### ライセンス
 
-修正BSDライセンス（The BSD 2-Clause License）の下で配布される。
+MITライセンスの下で配布される。
 
 ------------------------
 Ryoya Ando

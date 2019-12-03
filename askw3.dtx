@@ -1,28 +1,56 @@
+% \iffalde meta-comment
+% 
+% Copyright 2017-2019 Ryoya Ando (@ryoya9826)
 %
-%^^A This file is a askw3.dtx
+% \fi
+% \iffalse
 %
+%
+% 2019/10/31 v1.2
+%		- Support LuaTeX (Assumes using "bxjscls")
+%		- Add \cmd,\showme
+%
+% 2018/10/10 v1.0
+%		-First release
+%
+% 2017/01/22 v0.0
+%		-Branched from askw.sty (Private macros collection package).
+%
+% \fi
 %
 % \iffalse
-%<package>\NeedsTeXFormat{LaTeX2e}
-%<package>\ProvidesPackage{askw3}[2019/10/31]
-%
+%<*askw3>
+%%
+%% This is file `askw3.sty',
+%% Copyright  2017-2019 Ryoya Ando (@ryoya9826)
+%% GitHub:	https://github.com/ryoya9826/askw3-dtx 
+%%
+%</askw3>
+%<askw3>\NeedsTeXFormat{LaTeX2e}
+%<*driver>
+\NeedsTeXFormat{pLaTeX2e}
+\ProvidesFile{askw3.dtx}
+%</driver>
+%<askw3>\ProvidesPackage{askw3}[2019/10/31 v2.0 add showme,cmd,mytitle]
 %<*driver>
 
 \documentclass[dvipdfmx]{jltxdoc}
 \let\cmd\relax
 \usepackage{askw3}
-\usepackage[T1]{fontenc}			%Change encording
-\usepackage{newtxtext,newtxmath}	%Change fonts
 \usepackage{manfnt}					%急カーブ
 \usepackage{spverbatim}				%\verb中に改行
-\usepackage{graphicx,float}
 \usepackage{tikz,tikz-cd}
 \usepackage{metalogo}
 
 \RecordChanges
 \GetFileInfo{askw3.sty}
+\title{The \textsf{askw3} package \fileversion}
+\author{Ryoya Ando}
+\date{\filedate}
+
 \begin{document}
-	\DocInput{askw3.dtx}
+	\maketitle
+	\DocInput{\filename}
 	\PrintChanges
 \end{document}
 %</driver>
@@ -31,25 +59,17 @@
 % \CheckSum{2153}
 % \changes{v0.0}{2017/01/22}{Making Start}
 % \changes{v1.0}{2018/10/10}{First release}
-% \changes{v1.1}{2019/08/28}{Bug fix}
-% \changes{v1.11}{2019/10/02}{Bug fiiiix}
-% \changes{v1.2}{2019/10/31}{New function added! See update history}
-% \title{askw3 package^^A
-%     \thanks{This document corresponds to
-%             \textsf{askw3}~\fileversion,
-%             dated \filedate.}}
-% \author{Ryoya Ando~(安藤 遼哉)}
-% \date{\filedate}
-% \maketitle
+% \changes{v1.1}{2019/10/31}{New function added! See update history}
+%
 % \newenvironment{titebend}{\par\dbend\vspace*{1zh}\par}{\par\hspace*{\fill}\dbend\vspace*{1zh}\par}
 %
 % \section{Licenses} 
 % 
-%  MIT License.
+%  修正BSDライセンス（The BSD 2-Clause License）の下で配布される。
 % \section{User Manual}
 %\setcounter{subsection}{-1}
 %\subsection{Update History}
-%\subsubsection{v1.2}
+%\subsubsection{v1.1}
 %
 %\begin{itemize}
 %	\item tlarrayパッケージへの依存関係を解消.
@@ -371,14 +391,7 @@
 %\section{Definition of macros}
 %
 %     \begin{macrocode}
-%<*askw3>
-%%
-%% This is file `askw3.sty',
-%% Copyright (c) 2017-2019 Ryoya Ando
-%%  Email  :  ryoya31026[a t]gmail.com
-%%
-\NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{askw3}[2019/10/31 v2.0 add showme,cmd,mytitle]
+
 
 \RequirePackage{xkeyval}				
 \RequirePackage{amsmath,amssymb,amsthm}	%%\let\@xp\expandafter
