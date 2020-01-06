@@ -131,10 +131,10 @@
 \AtBeginDocument{\m@syu@zero@elt}
 }{}
 
+\newif\ifm@syu@sectionmark@submark
+\m@syu@sectionmark@submarkfalse
+
 \optiondef{sectionmark}{
-	\newif\ifm@syu@sectionmark@submark
-	\m@syu@sectionmark@submarkfalse
-	
 	\newcommand{\sectionmarkdepth}[1]{%
 		\ifnum #1=1
 		\m@syu@sectionmark@submarktrue
