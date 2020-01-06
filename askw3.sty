@@ -34,8 +34,11 @@
 \RequirePackage{xkeyval} 
 \RequirePackage{amsmath,amssymb,amsthm} %%\let\@xp\expandafter
 \RequirePackage{ascmac} 
-\RequirePackage{bxghost} 
-\RequirePackage{ifluatex}[2019/11/07]
+%\RequirePackage{bxghost} 
+\def\eghostguarded#1{#1}
+\RequirePackage{iftex}[2019/11/07]
+\RequirePackage{ifluatex}
+\RequirePackage{ifptex}
 
 \def\m@syu@elt{\relax}
 \def\m@syu@thmelt{\relax}
