@@ -68,11 +68,11 @@
 	\DeclareOption{#1}{\csname @#1true\endcsname}
 }
 
-\long\def\optiondef#1#2#3{
+\long\def\optiondef#1{
 	\csname if@#1\endcsname
-		#2
+		\@xp\@firstoftwo
 	\else
-		#3
+		\@xp\@secondoftwo
 	\fi
 }
 
@@ -131,14 +131,13 @@
 \AtBeginDocument{\m@syu@zero@elt}
 }{}
 
-\newif\ifm@syu@sectionmark@submark
-\m@syu@sectionmark@submarkfalse
-
 \optiondef{sectionmark}{
-	\newcommand{\sectionmarkdepth}[1]{%
-		\ifnum #1=1
+	\newif\ifm@syu@sectionmark@submark
+	\m@syu@sectionmark@submarkfalse
+	\def\sectionmarkdepth#1{%
+		\ifnum #1=1\relax
 		\m@syu@sectionmark@submarktrue
-		\else\ifnum #1=0
+		\else\ifnum #1=0\relax
 		\m@syu@sectionmark@submarkfalse
 		\else
 		\PackageWarning{askw3.sty}{Only 0 or 1 can be used for \protect\sectionmarkdepth\space argument. Instead it was treated as 0.}%
@@ -147,11 +146,11 @@
 	}
 	\def\@sect#1#2#3#4#5#6[#7]#8{%
 		\ifm@syu@sectionmark@submark
-		\@xp\let\@xp\m@syu@tempa\csname the#1\endcsname
-		\@xp\def\csname the#1\endcsname{\S\m@syu@tempa}%
+			\@xp\let\@xp\m@syu@tempa\csname the#1\endcsname
+			\@xp\def\csname the#1\endcsname{\S\m@syu@tempa}%
 		\else
-		\let\m@syu@tempa\thesection
-		\def\thesection{\S\m@syu@tempa}%
+			\let\m@syu@tempa\thesection
+			\def\thesection{\S\m@syu@tempa}%
 		\fi
 		\ifnum #2>\c@secnumdepth
 		\let\@svsec\@empty
@@ -169,7 +168,7 @@
 				\ifnum #2>\c@secnumdepth \else
 				\protect\numberline{\csname the#1\endcsname}%
 				\fi
-				#7}}%目次にフルネームを載せるなら #8
+				#7}}%
 		\else
 		\begingroup
 		\interlinepenalty\@M
@@ -182,16 +181,16 @@
 			\ifnum #2>\c@secnumdepth \else
 			\protect\numberline{\csname the#1\endcsname}%
 			\fi
-			#7}% 目次にフルネームを載せるならここは #8
+			#7}%
 		\fi
 		\ifm@syu@sectionmark@submark
-		\@xp\let\csname the#1\endcsname\m@syu@tempa
-		\let\m@syu@tempa\relax
+			\@xp\let\csname the#1\endcsname\m@syu@tempa
+			\let\m@syu@tempa\relax
 		\else
-		\let\thesection\m@syu@tempa
-		\let\m@syu@tempa\relax
+			\let\thesection\m@syu@tempa
+			\let\m@syu@tempa\relax
 		\fi
-		\@xsect{#5}
+		\@xsect{#5}%
 	}
 }{}
 
