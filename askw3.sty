@@ -35,7 +35,7 @@
 \RequirePackage{amsmath,amssymb,amsthm} %%\let\@xp\expandafter
 \RequirePackage{ascmac} 
 \RequirePackage{bxghost} 
-\RequirePackage{ifluatex}
+\RequirePackage{ifluatex}[2019/11/07]
 
 \def\m@syu@elt{\relax}
 \def\m@syu@thmelt{\relax}
@@ -45,13 +45,13 @@
 %%///Define error message
 %%
 
-\def\@m@syu@toosmall{\PackageError{askw.sty}{The setenum argument must be 5 or more.}\@ehd}
-\def\@m@syu@samename{\PackageError{askw.sty}{This person is already registered.}\@ehd}
-\def\@m@syu@eqvlabel{\PackageError{askw.sty}{Use the specified argument.}\@ehd}
+\def\@m@syu@toosmall{\PackageError{askw3.sty}{The setenum argument must be 5 or more.}\@ehd}
+\def\@m@syu@samename{\PackageError{askw3.sty}{This person is already registered.}\@ehd}
+\def\@m@syu@eqvlabel{\PackageError{askw3.sty}{Use the specified argument.}\@ehd}
 
-\def\m@syu@oldcommand#1{\PackageWarning{askw.sty}{Use of \protect#1\space is not recommended.}}
-\def\@m@syu@notnamed{\PackageWarning{askw.sty}{Person date is not registerd.}}
-\def\@m@syu@alreadytitlesetted{\PackageWarning{askw.sty}{Title data are already setted, but I updated them.}}
+\def\m@syu@oldcommand#1{\PackageWarning{askw3.sty}{Use of \protect#1\space is not recommended.}}
+\def\@m@syu@notnamed{\PackageWarning{askw3.sty}{Person date is not registerd.}}
+\def\@m@syu@alreadytitlesetted{\PackageWarning{askw3.sty}{Title data are already setted, but I updated them.}}
 
 %%
 %%///End of define error message
@@ -82,22 +82,28 @@
 \ProcessOptions
 
 \optiondef{links}{
-	\@ifpackageloaded{hyperref}{
-	\ifluatex\else
-		\RequirePackage{pxjahyper}
-	\fi
-	\def\m@syu@href{%
-		\refstepcounter{Item}%
-		\protected@edef\@currentHlabel{Item.\arabic{Item}}
-	}
-	}{ 
-	\RequirePackage[hidelinks,hyperfigures]{hyperref}
-	\ifluatex\else
-		\RequirePackage{pxjahyper}
-	\fi
-	\def\m@syu@href{%
-	\refstepcounter{Item}%
-	\protected@edef\@currentHlabel{Item.\arabic{Item}}
+	\AtBeginDocument{
+		\@ifpackageloaded{hyperref}{
+			\ifptex
+			\RequirePackage{pxjahyper} %p-TeX以外では読み込まない
+			\m@syu@packageloaded{pxjahyper}
+			\fi
+			\def\m@syu@href{%
+				\refstepcounter{Item}%
+				\protected@edef\@currentHlabel{Item.\arabic{Item}}%
+			}
+		}{	
+			\RequirePackage[hidelinks,hyperfigures]{hyperref}
+			\m@syu@packageloaded{hyperref}
+			\ifptex
+			\RequirePackage{pxjahyper}
+			\m@syu@packageloaded{pxjahyper}
+			\fi
+			\def\m@syu@href{%
+				\refstepcounter{Item}%
+				\protected@edef\@currentHlabel{Item.\arabic{Item}}%
+			}
+		}
 	}
 }{\def\m@syu@href{\relax}}
 
@@ -160,7 +166,7 @@
 				\ifnum #2>\c@secnumdepth \else
 				\protect\numberline{\csname the#1\endcsname}%
 				\fi
-				#7}}%
+				#7}}%目次にフルネームを載せるなら #8
 		\else
 		\begingroup
 		\interlinepenalty\@M
@@ -173,7 +179,7 @@
 			\ifnum #2>\c@secnumdepth \else
 			\protect\numberline{\csname the#1\endcsname}%
 			\fi
-			#7}%
+			#7}% 目次にフルネームを載せるならここは #8
 		\fi
 		\ifm@syu@sectionmark@submark
 		\@xp\let\csname the#1\endcsname\m@syu@tempa
