@@ -60,16 +60,18 @@
 %%///Define Package Option
 %%
 \def\addoption#1{
-\@xp\newif\csname if@#1\endcsname
-\csname @#1false\endcsname
-\DeclareOption{#1}{\csname @#1true\endcsname}}
+	\@xp\newif\csname if@#1\endcsname
+	\csname @#1false\endcsname
+	\DeclareOption{#1}{\csname @#1true\endcsname}
+}
 
 \long\def\optiondef#1#2#3{
-\csname if@#1\endcsname
-#2
-\else
-#3
-\fi}
+	\csname if@#1\endcsname
+		#2
+	\else
+		#3
+	\fi
+}
 
 \addoption{links}
 \addoption{zerostart}
@@ -80,22 +82,23 @@
 \ProcessOptions
 
 \optiondef{links}{
-\@ifpackageloaded{hyperref}{
-\ifluatex\else
-\RequirePackage{pxjahyper}
-\fi
-\def\m@syu@href{%
-\refstepcounter{Item}%
-\protected@edef\@currentHlabel{Item.\arabic{Item}}}
-}{ 
-\RequirePackage[hidelinks,hyperfigures]{hyperref}
-\ifluatex\else
-\RequirePackage{pxjahyper}
-\fi
-\def\m@syu@href{%
-\refstepcounter{Item}%
-\protected@edef\@currentHlabel{Item.\arabic{Item}}}
-}
+	\@ifpackageloaded{hyperref}{
+	\ifluatex\else
+		\RequirePackage{pxjahyper}
+	\fi
+	\def\m@syu@href{%
+		\refstepcounter{Item}%
+		\protected@edef\@currentHlabel{Item.\arabic{Item}}
+	}
+	}{ 
+	\RequirePackage[hidelinks,hyperfigures]{hyperref}
+	\ifluatex\else
+		\RequirePackage{pxjahyper}
+	\fi
+	\def\m@syu@href{%
+	\refstepcounter{Item}%
+	\protected@edef\@currentHlabel{Item.\arabic{Item}}
+	}
 }{\def\m@syu@href{\relax}}
 
 \optiondef{thmnumthrice}{
@@ -120,44 +123,67 @@
 }{}
 
 \optiondef{sectionmark}{
-\def\@sect#1#2#3#4#5#6[#7]#8{%
-\@xp\let\@xp\m@syu@tempa\csname the#1\endcsname
-\@xp\def\csname the#1\endcsname{\S\m@syu@tempa}%
-\ifnum #2>\c@secnumdepth
-\let\@svsec\@empty
-\else
-\refstepcounter{#1}%
-\protected@edef\@svsec{\@seccntformat{#1}\relax}%
-\fi
-\@tempskipa #5\relax
-\ifdim \@tempskipa<\z@
-\def\@svsechd{%
-#6{\hskip #3\relax
-\@svsec #8}%
-\csname #1mark\endcsname{#7}%
-\addcontentsline{toc}{#1}{%
-\ifnum #2>\c@secnumdepth \else
-\protect\numberline{\csname the#1\endcsname}%
-\fi
-#7}}%
-\else
-\begingroup
-\interlinepenalty \@M
-#6{%
-\@hangfrom{\hskip #3\relax\@svsec}%
-#8\@@par}%
-\endgroup
-\csname #1mark\endcsname{#7}%
-\addcontentsline{toc}{#1}{%
-\ifnum #2>\c@secnumdepth \else
-\protect\numberline{\csname the#1\endcsname}%
-\fi
-#7}%
-\fi
-\@xp\let\csname the#1\endcsname\m@syu@tempa
-\let\m@syu@tempa\relax
-\@xsect{#5}
-}
+	\newif\ifm@syu@sectionmark@submark
+	\m@syu@sectionmark@submarkfalse
+	
+	\newcommand{\sectionmarkdepth}[1]{%
+		\ifnum #1=1
+		\m@syu@sectionmark@submarktrue
+		\else\ifnum #1=0
+		\m@syu@sectionmark@submarkfalse
+		\else
+		\PackageWarning{askw3.sty}{Only 0 or 1 can be used for \protect\sectionmarkdepth\space argument. Instead it was treated as 0.}%
+		\m@syu@sectionmark@submarkfalse
+		\fi\fi
+	}
+	\def\@sect#1#2#3#4#5#6[#7]#8{%
+		\ifm@syu@sectionmark@submark
+		\@xp\let\@xp\m@syu@tempa\csname the#1\endcsname
+		\@xp\def\csname the#1\endcsname{\S\m@syu@tempa}%
+		\else
+		\let\m@syu@tempa\thesection
+		\def\thesection{\S\m@syu@tempa}%
+		\fi
+		\ifnum #2>\c@secnumdepth
+		\let\@svsec\@empty
+		\else
+		\refstepcounter{#1}%
+		\protected@edef\@svsec{\@seccntformat{#1}\relax}%
+		\fi
+		\@tempskipa #5\relax
+		\ifdim \@tempskipa<\z@
+		\def\@svsechd{%
+			#6{\hskip #3\relax
+				\@svsec #8}%
+			\csname #1mark\endcsname{#7}%
+			\addcontentsline{toc}{#1}{%
+				\ifnum #2>\c@secnumdepth \else
+				\protect\numberline{\csname the#1\endcsname}%
+				\fi
+				#7}}%
+		\else
+		\begingroup
+		\interlinepenalty\@M
+		#6{%
+			\@hangfrom{\hskip #3\relax\@svsec}%
+			#8\@@par}%
+		\endgroup
+		\csname #1mark\endcsname{#7}%
+		\addcontentsline{toc}{#1}{%
+			\ifnum #2>\c@secnumdepth \else
+			\protect\numberline{\csname the#1\endcsname}%
+			\fi
+			#7}%
+		\fi
+		\ifm@syu@sectionmark@submark
+		\@xp\let\csname the#1\endcsname\m@syu@tempa
+		\let\m@syu@tempa\relax
+		\else
+		\let\thesection\m@syu@tempa
+		\let\m@syu@tempa\relax
+		\fi
+		\@xsect{#5}
+	}
 }{}
 
 \optiondef{dottedtoc}{
@@ -679,6 +705,7 @@
 \fi
 \title{#1}\author{\m@syu@author}\date{\m@syu@date}%
 \maketitle
+\thispagestyle{empty}
 \c@page=\z@
 }%
 }%
