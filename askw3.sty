@@ -20,181 +20,209 @@
 %% original source files, as listed above, are part of the
 %% same distribution. (The sources need not necessarily be
 %% in the same archive or directory.)
+%%% This is file `askw3.sty',
+%%% Copyright  2017-2021 Ryoya Ando (@Reincarnatorsan)
+%%% GitHub: https://github.com/ryoya9826/askw3-dtx
 
 %%-->
-
-%%
-%% This is file `askw3.sty',
-%% Copyright (c) 2017-2019 Ryoya Ando
-%%  Email  :  ryoya31026[a t]gmail.com
-%%
-\NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{askw3}[2019/01/06 v1.11 sectionmark is renewed]
 
 \RequirePackage{xkeyval} 
 \RequirePackage{amsmath,amssymb,amsthm} %%\let\@xp\expandafter
 \RequirePackage{ascmac} 
-%\RequirePackage{bxghost} 
-\def\eghostguarded#1{#1}
-\RequirePackage{iftex}[2019/11/07]
-\RequirePackage{ifluatex}
-\RequirePackage{ifptex}
+\RequirePackage{bxghost} 
+\RequirePackage{iftex}
+\RequirePackage{etoolbox}
 
 \def\m@syu@elt{\relax}
 \def\m@syu@thmelt{\relax}
 \def\m@syu@thmtwoelt{\relax}
+\def\m@syu@thmoneelt{\relax}
 \def\m@syu@zero@elt{\relax}
+
+\def\m@syu@delete@define#1{\g@addto@macro\m@syu@elt{\let#1=\relax}}
 %%
 %%///Define error message
 %%
 
-\def\@m@syu@toosmall{\PackageError{askw3.sty}{The setenum argument must be 5 or more.}\@ehd}
-\def\@m@syu@samename{\PackageError{askw3.sty}{This person is already registered.}\@ehd}
-\def\@m@syu@eqvlabel{\PackageError{askw3.sty}{Use the specified argument.}\@ehd}
+\def\@m@syu@toosmall{\PackageError{askw3.sty}{The setenum argument must be 5 or more}\@ehd}
+\def\@m@syu@samename{\PackageError{askw3.sty}{This person is already registered}\@ehd}
+\def\@m@syu@eqvlabel{\PackageError{askw3.sty}{Use the specified argument, you are idiot}\@ehd}
+\def\@m@syu@nopluatexerr{\PackageError{askw3.sty}{This command in only available in LuaTeX, p-TeX}\@ehd}
+\def\@m@syu@tateerr{\PackageError{askw3.sty}{tate option is only available for p-TeX}\@ehd}
+\def\@m@syu@duplicateerr{\PackageError{askw3.sty}{This command can be used only once}\@ehd}
 
 \def\m@syu@oldcommand#1{\PackageWarning{askw3.sty}{Use of \protect#1\space is not recommended.}}
 \def\@m@syu@notnamed{\PackageWarning{askw3.sty}{Person date is not registerd.}}
 \def\@m@syu@alreadytitlesetted{\PackageWarning{askw3.sty}{Title data are already setted, but I updated them.}}
-
+\def\m@syu@fontselected#1{\PackageInfo{askw3.sty}{Font ``\protect#1\space " is loaded.}}
+\def\m@syu@packageloaded#1{\PackageInfo{askw3.sty}{Package ``\protect#1\space " is loaded.}}
 %%
 %%///End of define error message
 %%
+
 %%
 %%///Define Package Option
 %%
 \def\addoption#1{
-	\@xp\newif\csname if@#1\endcsname
-	\csname @#1false\endcsname
-	\DeclareOption{#1}{\csname @#1true\endcsname}
+\@xp\newif\csname if@#1\endcsname
+\csname @#1false\endcsname
+\DeclareOption{#1}{\csname @#1true\endcsname}
 }
+
+\m@syu@delete@define{\addoption}
 
 \long\def\optiondef#1{
-	\csname if@#1\endcsname
-		\@xp\@firstoftwo
-	\else
-		\@xp\@secondoftwo
-	\fi
+\csname if@#1\endcsname
+\@xp\@firstoftwo
+\else
+\@xp\@secondoftwo
+\fi
 }
+\m@syu@delete@define{\optiondef}
 
 \addoption{links}
-\addoption{zerostart}
-\addoption{thmnumthrice}
-\addoption{thmnumtwice}
-\addoption{sectionmark}
-\addoption{dottedtoc}
+
+\def\m@syu@addoption#1{%boolean switch
+\@xp\newif\csname if@#1\endcsname
+\csname @#1false\endcsname
+\define@key{askwoption}{#1}[true]{
+\csname @#1##1\endcsname
+}
+}
+
+\m@syu@addoption{thmlinebreak}
+\m@syu@addoption{barrenew}
+\m@syu@addoption{subsectionmark}
+\m@syu@addoption{zerostart}
+\m@syu@addoption{dottedtoc}
+\m@syu@addoption{sectionmark}
+
+\newcommand{\askwoption}[1]{
+\setkeys{askwoption}{#1}
+}
+
+\@onlypreamble\askwoption
+
+\newif\if@thmnumtwo
+\newif\if@thmnumthr
+\@thmnumtwofalse
+\@thmnumthrfalse
+
+\define@key{askwoption}{thmnumber}[1]{
+\m@syu=#1
+\ifnum\m@syu=1
+\@thmnumtwofalse
+\@thmnumthrfalse
+\else
+\ifnum\m@syu=2
+\@thmnumtwotrue
+\@thmnumthrfalse
+\else
+\ifnum\m@syu=3
+\@thmnumthrtrue
+\@thmnumtwofalse
+\fi\fi\fi
+}
+
 \ProcessOptions
 
 \optiondef{links}{
-	\AtBeginDocument{
-		\@ifpackageloaded{hyperref}{
-			\ifptex
-			\RequirePackage{pxjahyper} %p-TeX以外では読み込まない
-			\m@syu@packageloaded{pxjahyper}
-			\fi
-			\def\m@syu@href{%
-				\refstepcounter{Item}%
-				\protected@edef\@currentHlabel{Item.\arabic{Item}}%
-			}
-		}{	
-			\RequirePackage[hidelinks,hyperfigures]{hyperref}
-			\m@syu@packageloaded{hyperref}
-			\ifptex
-			\RequirePackage{pxjahyper}
-			\m@syu@packageloaded{pxjahyper}
-			\fi
-			\def\m@syu@href{%
-				\refstepcounter{Item}%
-				\protected@edef\@currentHlabel{Item.\arabic{Item}}%
-			}
-		}
-	}
+\def\m@syu@href{%
+\refstepcounter{Item}%
+\protected@edef\@currentHlabel{Item.\arabic{Item}}%
+}
+\@ifpackageloaded{hyperref}{
+\ifptex
+\RequirePackage{pxjahyper} %p-TeX以外では読み込まない
+\m@syu@packageloaded{pxjahyper}
+\fi
+}{ 
+\RequirePackage[hidelinks,hyperfigures]{hyperref}
+\m@syu@packageloaded{hyperref}
+\ifptex
+\RequirePackage{pxjahyper}
+\m@syu@packageloaded{pxjahyper}
+\fi
+}
 }{\def\m@syu@href{\relax}}
 
-\optiondef{thmnumthrice}{
-\AtBeginDocument{
+\AtEndPreamble{
+%%%thmnumber
+\if@thmnumthr
 \def\theequation{\thepart.\thesection.\arabic{equation}}
-\m@syu@thmelt}
-}{}
-
-\optiondef{thmnumtwice}{
-\AtBeginDocument{
+\m@syu@thmelt
+\else
+\if@thmnumtwo
 \def\theequation{\thesection.\arabic{equation}}
-\m@syu@thmtwoelt}
-}{}
-
-\optiondef{zerostart}{
+\m@syu@thmtwoelt
+\else
+\def\theequation{\arabic{equation}}
+\m@syu@thmoneelt
+\fi\fi
+%%%zerostart
+\if@zerostart
 \c@figure=\m@ne
 \c@table=\m@ne
 \c@footnote=\m@ne
 \c@section=\m@ne
+\@ifundefined{c@chapter}{}{\c@chapter=\m@ne}
+\@ifundefined{c@part}{}{\c@part=\m@ne}
 \def\@stpelt#1{\global \csname c@#1\endcsname -2\stepcounter {#1}}
-\AtBeginDocument{\m@syu@zero@elt}
-}{}
-
-\optiondef{sectionmark}{
-	\newif\ifm@syu@sectionmark@submark
-	\m@syu@sectionmark@submarkfalse
-	\def\sectionmarkdepth#1{%
-		\ifnum #1=1\relax
-		\m@syu@sectionmark@submarktrue
-		\else\ifnum #1=0\relax
-		\m@syu@sectionmark@submarkfalse
-		\else
-		\PackageWarning{askw3.sty}{Only 0 or 1 can be used for \protect\sectionmarkdepth\space argument. Instead it was treated as 0.}%
-		\m@syu@sectionmark@submarkfalse
-		\fi\fi
-	}
-	\def\@sect#1#2#3#4#5#6[#7]#8{%
-		\ifm@syu@sectionmark@submark
-			\@xp\let\@xp\m@syu@tempa\csname the#1\endcsname
-			\@xp\def\csname the#1\endcsname{\S\m@syu@tempa}%
-		\else
-			\let\m@syu@tempa\thesection
-			\def\thesection{\S\m@syu@tempa}%
-		\fi
-		\ifnum #2>\c@secnumdepth
-		\let\@svsec\@empty
-		\else
-		\refstepcounter{#1}%
-		\protected@edef\@svsec{\@seccntformat{#1}\relax}%
-		\fi
-		\@tempskipa #5\relax
-		\ifdim \@tempskipa<\z@
-		\def\@svsechd{%
-			#6{\hskip #3\relax
-				\@svsec #8}%
-			\csname #1mark\endcsname{#7}%
-			\addcontentsline{toc}{#1}{%
-				\ifnum #2>\c@secnumdepth \else
-				\protect\numberline{\csname the#1\endcsname}%
-				\fi
-				#7}}%
-		\else
-		\begingroup
-		\interlinepenalty\@M
-		#6{%
-			\@hangfrom{\hskip #3\relax\@svsec}%
-			#8\@@par}%
-		\endgroup
-		\csname #1mark\endcsname{#7}%
-		\addcontentsline{toc}{#1}{%
-			\ifnum #2>\c@secnumdepth \else
-			\protect\numberline{\csname the#1\endcsname}%
-			\fi
-			#7}%
-		\fi
-		\ifm@syu@sectionmark@submark
-			\@xp\let\csname the#1\endcsname\m@syu@tempa
-			\let\m@syu@tempa\relax
-		\else
-			\let\thesection\m@syu@tempa
-			\let\m@syu@tempa\relax
-		\fi
-		\@xsect{#5}%
-	}
-}{}
-
-\optiondef{dottedtoc}{
+\m@syu@zero@elt
+\fi
+%%%sectionmark
+\if@sectionmark
+\def\@sect#1#2#3#4#5#6[#7]#8{%
+\if@subsectionmark
+\@xp\let\@xp\m@syu@tempa\csname the#1\endcsname
+\@xp\def\csname the#1\endcsname{\S~\m@syu@tempa}%
+\else
+\let\m@syu@tempa\thesection
+\def\thesection{\S~\m@syu@tempa}%
+\fi
+\ifnum #2>\c@secnumdepth
+\let\@svsec\@empty
+\else
+\refstepcounter{#1}%
+\protected@edef\@svsec{\@seccntformat{#1}\relax}%
+\fi
+\@tempskipa #5\relax
+\ifdim \@tempskipa<\z@
+\def\@svsechd{%
+#6{\hskip #3\relax
+\@svsec #8}%
+\csname #1mark\endcsname{#7}%
+\addcontentsline{toc}{#1}{%
+\ifnum #2>\c@secnumdepth \else
+\protect\numberline{\csname the#1\endcsname}%
+\fi
+#7}}%目次にフルネームを載せるなら #8
+\else
+\begingroup
+\interlinepenalty\@M
+#6{%
+\@hangfrom{\hskip #3\relax\@svsec}%
+#8\@@par}%
+\endgroup
+\csname #1mark\endcsname{#7}%
+\addcontentsline{toc}{#1}{%
+\ifnum #2>\c@secnumdepth \else
+\protect\numberline{\csname the#1\endcsname}%
+\fi
+#7}% 目次にフルネームを載せるならここは #8
+\fi
+\if@subsectionmark
+\@xp\let\csname the#1\endcsname\m@syu@tempa
+\let\m@syu@tempa\relax
+\else
+\let\thesection\m@syu@tempa
+\let\m@syu@tempa\relax
+\fi
+\@xsect{#5}%
+}
+\fi
+%%%dottedtoc
+\if@dottedtoc
 \def\l@part#1#2{%
 \ifnum \c@tocdepth >-2
 \addpenalty{\@secpenalty}%
@@ -204,14 +232,16 @@
 \rightskip\@tocrmarg
 \parfillskip-\rightskip
 \leavevmode\headfont
-\setlength\@lnumwidth{4zw}%
+\setlength\@lnumwidth{4\zw}%
 \advance\leftskip\@lnumwidth
 \hskip-\leftskip #1\nobreak
 \leaders\hbox{\normalfont$\m@th \mkern
-\@dotsep mu\hbox{.}\mkern \@dotsep mu$}\hfill
-\nobreak\hbox to\@pnumwidth{\hss#2}\par
+\@dotsep mu\hbox{.}\mkern \@dotsep mu$}\hfill\nobreak
+\hbox to\@pnumwidth{\hss#2} %%page を表示しないならコメントアウト
+\par
 \endgroup
-\fi}
+\fi
+}
 \if@sectionmark
 \def\l@section#1#2{%
 \ifnum \c@tocdepth >\z@
@@ -222,14 +252,16 @@
 \rightskip\@tocrmarg
 \parfillskip-\rightskip
 \leavevmode\headfont
-\setlength\@lnumwidth{\jsc@tocl@width}\advance\@lnumwidth 2zw
+\setlength\@lnumwidth{\jsc@tocl@width}\advance\@lnumwidth 2ex
 \advance\leftskip\@lnumwidth \hskip-\leftskip
 #1\nobreak\hfil\nobreak\parindent1.5em
 \hbox to\@pnumwidth{\hss#2}\par
 \endgroup
-\fi}
 \fi
-}{}
+}
+\fi
+\fi
+}
 %%///End of Define Package option
 %%
 \newcount\m@syu
@@ -238,15 +270,21 @@
 
 \newcount\m@syu@name
 \newcount\m@syu@sort@length
-\newcounter{m@syu@eqv}
-
+\newcount\c@m@syu@eqv
 \newlength\m@syu@length
 \newlength\m@syu@length@
+\newlength\m@syu@length@@
+\newlength\masyulengtha
+\newlength\masyulengthb
+\newlength\masyulengthc
 
 \m@syu@name=\z@
+\c@m@syu@eqv=\z@
 
-%%%///Define theorem environment
+%%%//Define theorem environment
 \newcommand{\makethm}{\@ifstar{\makethm@star}{\makethm@nonstar}}
+\@onlypreamble{\makethm}
+
 \newcommand{\thmnotefontchange}[1]{\gdef\m@syu@thm@notefont{#1}}
 
 \def\m@syu@punct{\relax}
@@ -272,6 +310,9 @@
 \@addtoreset{#1}{section}}%
 \g@addto@macro\m@syu@thmtwoelt{%
 \@xp\def\csname the#1\endcsname{\arabic{section}.\arabic{#1}}%
+\@addtoreset{#1}{section}}%
+\g@addto@macro\m@syu@thmoneelt{%
+\@xp\def\csname the#1\endcsname{\arabic{#1}}%
 \@addtoreset{#1}{section}}%
 \g@addto@macro\m@syu@zero@elt{\setcounter{#1}{-1}}%
 \newenvironment{#1}[1][]{%
@@ -316,10 +357,13 @@
 \@thmcountersep\@thmcounter{#1}}%
 \fi
 \g@addto@macro\m@syu@thmelt{%
-\@xp\def\csname the#1\endcsname{\thepart.\the.\arabic{#1}}%
+\@xp\def\csname the#1\endcsname{\thepart.\thesection.\arabic{#1}}%
 \@addtoreset{#1}{section}}%
 \g@addto@macro\m@syu@thmtwoelt{%
 \@xp\def\csname the#1\endcsname{\thesection.\arabic{#1}}%
+\@addtoreset{#1}{section}}%
+\g@addto@macro\m@syu@thmoneelt{%
+\@xp\def\csname the#1\endcsname{\arabic{#1}}%
 \@addtoreset{#1}{section}}%
 \g@addto@macro\m@syu@zero@elt{\setcounter{#1}{-1}}%
 \toks@{#2}%
@@ -336,7 +380,7 @@
 \ifx\m@syu@thm@\empty
 \relax
 \else
-\nobreakspace(#1)
+（#1）%Zenkaku
 \fi
 }
 
@@ -344,11 +388,17 @@
 \g@addto@macro\m@syu@thmelt{%
 \@xp\def\csname the#1\endcsname{\arabic{#1}}%
 }%
+\g@addto@macro\m@syu@thmtwoelt{%
+\@xp\def\csname the#1\endcsname{\arabic{#1}}%
+}%
+\g@addto@macro\m@syu@thmoneelt{%
+\@xp\def\csname the#1\endcsname{\arabic{#1}}%
+}%
 }
 
-\newcommand{\thmlinebreak}{\def\thm@linebreak{Do it!}}
+\@onlypreamble{\thmnumonly}
 
-\AtBeginDocument{%
+\AtEndPreamble{%
 \def\@begintheorem#1#2[#3]{%
 \deferred@thm@head{%
 \the\thm@headfont\thm@indent
@@ -359,7 +409,7 @@
 \thmhead{#1}{#2}{#3}%
 \the\thm@headpunct\thmheadnl\hskip\thm@headsep}%
 \global\protected@edef\@currentlabel{#1#2}%
-\@ifundefined{thm@linebreak}{}{\quad\par}}%
+\if@thmlinebreak\quad\par\fi}%
 }
 
 \renewenvironment{proof}[1][\proofname]{%
@@ -369,11 +419,24 @@
 \@itempenalty\@M
 \item[\hskip\labelsep
 \itshape
-#1\@addpunct{.}]\quad
-\@ifundefined{thm@linebreak}{}{%
-\@ifnextchar\begin{\item}{\setlength{\itemindent}{1em}\item}%
-}%
-}{\popQED\endtrivlist\@endpefalse
+#1\@addpunct{\m@syu@afterpunct}]\quad
+\if@thmlinebreak
+\@xp\@firstoftwo
+\else
+\@xp\@secondoftwo
+\fi
+{\@ifnextchar\begin{\item}{\setlength{\itemindent}{1em}\item}}{}%
+}{\popQED\endtrivlist\@endpefalse}
+
+\newif\if@m@syu@eng
+\@m@syu@engfalse
+
+\def\m@syu@afterpunct{%
+\if@m@syu@eng
+.
+\else
+\textbf{．}
+\fi
 }
 
 \newenvironment{answer}[1][\textbf{解答}]{%
@@ -383,22 +446,26 @@
 \pushQED{\qed}%
 \normalfont \topsep6\p@\@plus6\p@\relax
 \trivlist
+\interlinepenalty\@M
 \@itempenalty\@M
 \item[\hskip\labelsep
 \itshape
-#1\@addpunct{.}]\quad
-\@ifundefined{thm@linebreak}{}{%
-\@ifnextchar\begin{\item}{\setlength{\itemindent}{1em}\item}%
+#1\@addpunct{．}]\quad
+\if@thmlinebreak
+\@xp\@firstoftwo
+\else
+\@xp\@secondoftwo
+\fi
+{\@ifnextchar\begin{\item}{\setlength{\itemindent}{1em}\item}}{}%
 }{%
 \popQED\endtrivlist\@endpefalse
 \let\qedsymbol\m@syu@qed
-}
 }
 
 %%
 %%///End of define theorem environment
 %%
-%%%
+%%% \partの書き換えにより,本来の\part[<text>]{<text>}は\part[<text>][]{<text>}で得られるようになる.
 
 \def\part{%
 \if@noskipsec \leavevmode \fi
@@ -454,13 +521,12 @@
 \else\refstepcounter{m@syu@part}%
 \fi
 \addcontentsline{toc}{part}{%
-\prepartname\thepart\postpartname\hspace{1zw}\m@syu@parttoc}{}%
+\prepartname\thepart\postpartname\hspace{1em}\m@syu@parttoc}{}%
 \else
 \addcontentsline{toc}{part}{#2}{}%
 \fi
-\markboth{\prepartname\thepart\postpartname\hspace{1zw}\m@syu@parttoc}{}%
-\bgroup
-\parindent\z@
+\markboth{\prepartname\thepart\postpartname\hspace{1em}\m@syu@parttoc}{}%
+{\parindent\z@
 \raggedright
 \interlinepenalty \@M
 \normalfont
@@ -475,7 +541,7 @@
 \addtolength{\m@syu@length}{-\m@syu@length@}%
 \settowidth{\m@syu@length@}{\huge\headfont #2}%
 \addtolength{\m@syu@length}{-\m@syu@length@}%
-\addtolength{\m@syu@length}{-1em}%
+\addtolength{\m@syu@length}{-1em}% part左の柱のぶん
 \begin{tabular}{@{\vrule width 2pt}c}%
 \huge\hspace*{.5em}\headfont\prepartname\thepart\postpartname\hspace{\m@syu@length}\huge \headfont #2\\[10pt]%
 \setlength{\m@syu@length}{\textwidth}%
@@ -487,8 +553,7 @@
 \end{tabular}
 \fi
 \fi
-\markboth{\prepartname\thepart\postpartname\hspace{1zw}#2}{}\par
-\egroup
+\markboth{\prepartname\thepart\postpartname\hspace{1em}#2}{}\par}%
 \nobreak
 \vskip 3ex
 \@afterheading
@@ -505,8 +570,6 @@
 \vskip 3ex
 \@afterheading
 }
-
-\def\@ifnextbracket{(}
 
 \def\equiv@label{%
 \m@syu=\@ne\relax
@@ -537,6 +600,12 @@
 
 \def\equiv@temp{\romannumeral}
 
+\def\m@syu@eqv@parametorcheck#1{\@m@syu@eqv@parametorcheck#1->->\@nil}
+\def\@m@syu@eqv@parametorcheck#1->#2->#3\@nil{
+\def\m@syu@eqv@firstparam{#1}
+\def\m@syu@eqv@secondparam{#2}
+}
+
 \def\equiv@label@{%
 \m@syu=\@ne\relax
 \renewcommand{\item}[1][0]{%
@@ -544,16 +613,25 @@
 \ifnum \m@syu>\@ne\relax
 \par\noindent
 \fi
-\ifnum ##1=\z@
-\else\m@syu=##1\relax
-\fi 
-\bgroup\interlinepenalty\@M
+\m@syu@eqv@parametorcheck{##1}\relax
+\ifx\m@syu@eqv@secondparam\empty
+\ifnum \m@syu@eqv@firstparam=\z@\relax
 \m@syu@=\m@syu\relax
 \global\advance\m@syu@\@ne\relax
-\ifnum \m@syu=\c@m@syu@eqv\relax
-\mbox{(\equiv@temp\the\m@syu)$\Longrightarrow$(\equiv@temp\the\@ne)}%
 \else
-\mbox{(\equiv@temp\the\m@syu)$\Longrightarrow$(\equiv@temp\the\m@syu@)}%
+\m@syu=\m@syu@eqv@firstparam\relax
+\m@syu@=\m@syu\relax
+\global\advance\m@syu@\@ne\relax
+\fi
+\else
+\m@syu=\m@syu@eqv@firstparam\relax
+\m@syu@=\m@syu@eqv@secondparam\relax
+\fi
+\bgroup\interlinepenalty\@M
+\ifnum \m@syu=\c@m@syu@eqv\relax
+\mbox{(\equiv@temp\the\m@syu)~$\Longrightarrow$~(\equiv@temp\the\@ne)}%
+\else
+\mbox{(\equiv@temp\the\m@syu)~$\Longrightarrow$~(\equiv@temp\the\m@syu@)}%
 \fi
 \global\advance\m@syu\@ne\relax\\\quad\egroup
 \else
@@ -611,12 +689,12 @@
 \m@syu@finalrun
 }
 
+\AtEndPreamble{\if@barrenew\let\bar\overline\fi}
+
 %%
-%%///Define the command used in the preamble
-%%
+%%///Define command which used preamble
 \newcommand{\setenumdepth}[1]{%
-\ifnum #1<5
-\@m@syu@toosmall
+\ifnum #1<5 \@m@syu@toosmall
 \else
 \m@syu=#1\relax
 \def\list##1##2{%
@@ -641,7 +719,7 @@
 \advance\@totalleftmargin \leftmargin
 \parshape \@ne \@totalleftmargin \linewidth
 \ignorespaces
-}%
+}
 \m@syu=\thr@@\relax
 \@whilenum \m@syu<#1 \relax
 \do{\@definecounter{enum\romannumeral\the\m@syu}%
@@ -654,8 +732,6 @@
 \@ifnextchar[{\@@enum@}{\@enum@}}%
 \fi
 }
-
-\newcommand{\addtoreset}[2]{\@addtoreset{#1}{#2}}
 
 \newcommand{\myheader}[1]{%
 \pagestyle{fancy}%
@@ -673,6 +749,13 @@
 
 \define@key[m@syu]{setmytitle}{author}[Jone Doe]{\def\m@syu@author{#1}}
 \define@key[m@syu]{setmytitle}{date}[\today]{\def\m@syu@date{#1}}
+\define@key[m@syu]{setmytitle}{none}[\relax]{
+\ifx#1\relax
+\else
+\DeclareRobustCommand{\m@syu@date}{}
+\DeclareRobustCommand{\m@syu@author}{}
+\fi
+}
 
 \presetkeys[m@syu]{setmytitle}{author,date}{}
 
@@ -694,7 +777,7 @@
 \m@syu@mytitle
 }
 
-\AtBeginDocument{%
+\AtEndPreamble{%
 \@ifpackageloaded{fancyhdr}{%
 \def\m@syu@mytitle#1{%
 \ifm@syu@setmytitle
@@ -713,7 +796,6 @@
 \fi
 \title{#1}\author{\m@syu@author}\date{\m@syu@date}%
 \maketitle
-\thispagestyle{empty}
 \c@page=\z@
 }%
 }%
@@ -721,9 +803,6 @@
 
 %%
 %%///End of defining about command which used preamble
-%%
-%%
-%%///Define command which use in article
 %%
 \let\m@syu@partchanged\relax
 \newcounter{m@syu@part}
@@ -750,36 +829,13 @@
 \fi\fi\fi\fi\fi\fi
 \gdef\thepart{\partchange@temp\the\c@m@syu@part}%
 }
-
 \newcommand{\thepartchangefinish}{%
 \let\m@syu@partchanged\relax
 \let\thepart\m@syu@orig@thepart
 \c@part=\m@syu@part@save
 }
-
-\newcommand{\middleoplus}{\mathchar"134C}
-
-\newcommand{\A}{\mathbb{A}}
-\newcommand{\Co}{\mathbb{C}}
-
-\ifluatex
-\else
-\newcommand{\C}{%
-\mathbb{C}%
-\PackageWarning{askw.sty}{Use \protect\Co\space instead \protect\C\space.}%
-} %
-\fi
-
-\newcommand{\R}{\mathbb{R}}
-\newcommand{\Q}{\mathbb{Q}}
-\newcommand{\Z}{\mathbb{Z}}
-\newcommand{\N}{\mathbb{N}}
-\newcommand{\F}{\mathbb{F}}
-
-\let\pilcrow\P
-\renewcommand{\P}{\mathbb{P}}
-\let\mP\P 
-
+%%///Define command which used article
+%%%%General math command
 \newcommand{\mkset}[2]{\left\{#1\mathrel{}\middle|\mathrel{}#2\right\}}
 
 \newcommand{\nitem}{\@ifnextchar<{\@nitem@}{\def\nitem@temp{1}\@nitem}}
@@ -806,13 +862,67 @@
 #2
 }
 
+\newcommand{\spanned}{\@ifnextchar[{\m@syu@spanned@}{\m@syu@spanned@@}}
+\newcommand{\m@syu@spanned@}[2][]{\left\langle #2\mathrel{}\middle|\mathrel{}#1\right\rangle}
+\newcommand{\m@syu@spanned@@}[1]{\left\langle #1\right\rangle}
+
+\newcommand{\ithone}[1][i]{\mathop{\vphantom=\hat{1}}\limits^{\scriptscriptstyle{#1}}}
+
+\newcommand{\ses}{%
+\def\m@syu@finalrun{\ses@making}%
+\@ifnextchar[{\m@syu@get@one}{%
+\def\m@syu@label@one{\empty}%
+\def\m@syu@label@two{\empty}%
+\m@syu@finalrun}%
+}
+
+\def\ses@making#1#2#3{%
+\begin{tikzcd}%
+0
+\arrow[r]\pgfmatrixnextcell#1\arrow[r,"\m@syu@label@one"]
+\pgfmatrixnextcell#2\arrow[r,"\m@syu@label@two"]
+\pgfmatrixnextcell#3\arrow[r]\pgfmatrixnextcell
+0
+\end{tikzcd}%
+}
+
+\newcommand{\nxcell}{\@ifnextchar[{\nxcell@label}{\nxcell@nolabel}}
+
+\def\nxcell@label[#1]{{}\arrow[r,"#1"]\pgfmatrixnextcell{}}
+\def\nxcell@nolabel{{}\arrow[r]\pgfmatrixnextcell{}}
+
+\newcommand{\darrow}{\@ifnextchar[{\darrow@label}{\darrow@nolabel}}
+
+\def\darrow@label[#1]{{}\arrow[d,"#1"]}
+\def\darrow@nolabel{{}\arrow[d]}
+
 \newcommand{\quo}[1]{``#1''}
 \newcommand{\uml}[1]{\"#1}
 
+\newcommand{\addtoreset}[2]{\@addtoreset{#1}{#2}}
+
+\newcommand{\romannum}[1]{%
+\m@syu=#1\relax
+\textrm{(\romannumeral\the\m@syu)}}
+
+\newcommand{\mif}[4]{%Zenkaku
+\begin{cases}
+#1&（#2\text{のとき．}）\\
+#3&（#4\text{のとき．}）
+\end{cases}%
+}
+
+\newcommand{\reitem}[1]{%
+\@xp\def\csname labelenum\romannumeral\the\@enumdepth\endcsname
+{\@xp\m@syu\@xp=\csname c@enum\romannumeral\the\@enumdepth\endcsname\relax
+(#1{\the\m@syu})%
+}%
+}
+
 \newcommand{\symlist}[2]{%
-\mbox{$#1$}%
-\setlength{\m@syu@length}{6cm}%
-\settowidth{\m@syu@length@}{\mbox{$#1$}}%
+#1
+\setlength{\m@syu@length}{3cm}%
+\settowidth{\m@syu@length@}{\mbox{#1}}%
 \addtolength{\m@syu@length}{-\m@syu@length@}%
 \leaders\hbox{\normalfont$\m@th \mkern%
 \@dotsep mu\hbox{.}\mkern \@dotsep mu$}\hskip\m@syu@length
@@ -889,10 +999,12 @@
 \advance\m@syu@sort@length\m@ne
 \advance\@tempcnta\@ne
 }
+%%%出力パート
 \m@syu=\@ne
 \advance\m@syu@name\@ne
 \@whilenum\m@syu<\m@syu@name
 \do{
+%%diedの調整
 \xdef\m@syu@emptychka{\csname m@syu@died@\the\m@syu\endcsname}
 \ifx\m@syu@emptychka\empty
 \@xp\def\csname m@syu@died@\the\m@syu\endcsname{\phantom{3333}}
@@ -903,9 +1015,10 @@
 \let\phantom\relax
 \def\m@syu@phantom@{\phantom{3}}
 \@xp\xdef\csname m@syu@died@\the\m@syu\endcsname{\the\c@m@syu@dieda\m@syu@phantom@}
-\let\phantom\m@syu@phantom%
+\let\phantom\m@syu@phantom%%%\phantom は\edefと組み合わせるとうまくいかない
 \fi
 \fi
+%%調整終わり
 \par
 \csname m@syu@name@\the\m@syu\endcsname.\hfill
 \csname m@syu@born@\the\m@syu\endcsname-\csname m@syu@died@\the\m@syu\endcsname\par
@@ -913,38 +1026,20 @@
 }%
 }
 
-\newcommand{\ses}{%
-\def\m@syu@finalrun{\ses@making}%
-\@ifnextchar[{\m@syu@get@one}{%
-\def\m@syu@label@one{\empty}%
-\def\m@syu@label@two{\empty}%
-\m@syu@finalrun}%
-}
 
-\def\ses@making#1#2#3{%
-\begin{tikzcd}%
-0
-\arrow[r]\pgfmatrixnextcell#1\arrow[r,"\m@syu@label@one"]
-\pgfmatrixnextcell#2\arrow[r,"\m@syu@label@two"]
-\pgfmatrixnextcell#3\arrow[r]\pgfmatrixnextcell
-0
-\end{tikzcd}%
-}
-
-\newcommand{\nxcell}{\@ifnextchar[{\nxcell@label}{\nxcell@nolabel}}
-
-\def\nxcell@label[#1]{{}\arrow[r,"#1"]\pgfmatrixnextcell{}}
-\def\nxcell@nolabel{{}\arrow[r]\pgfmatrixnextcell{}}
-
+%%%\thenumXX={hoge}
+%%%\p@enumXX={\theenumXX}
+%%%\labelenumXX={(\theenumXX)}のように定義すべき. (See Source2e)
+\newcount\c@romanitemize
 \newenvironment{romanitemize}
 {\begin{enumerate}
 \@xp\def\csname labelenum\romannumeral\the\@enumdepth\endcsname
-{\@xp\m@syu\@xp=\csname c@enum\romannumeral\the\@enumdepth\endcsname\relax
-(\romannumeral\the\m@syu)}%
+{\@xp\c@romanitemize\@xp=\csname c@enum\romannumeral\the\@enumdepth\endcsname\relax
+(\romannumeral\the\c@romanitemize)}%
 \setlength{\parindent}{1em}%
 }{\end{enumerate}}
 
-\newenvironment{circitemize}
+\newenvironment{circleitemize}
 {\begin{enumerate}
 \@xp\def\csname labelenum\romannumeral\the\@enumdepth\endcsname
 {\@xp\m@syu\@xp=\csname c@enum\romannumeral\the\@enumdepth\endcsname\relax
@@ -964,11 +1059,12 @@ $({\the\m@syu})$}%
 {\begin{enumerate}
 \@xp\def\csname labelenum\romannumeral\the\@enumdepth\endcsname
 {\@xp\m@syu\@xp=\csname c@enum\romannumeral\the\@enumdepth\endcsname\relax
-Step\the\m@syu.}%
+Step~\the\m@syu.}%
 \setlength{\parindent}{1em}%
 }{\end{enumerate}}
 
-\newenvironment{eqv}[1][0]{%
+\newenvironment{eqv}[1][0]
+{\par
 \c@m@syu@eqv=#1\relax
 \m@syu@@=\@enumdepth
 \let\m@syu@eqv@item=\item
@@ -979,9 +1075,9 @@ Step\the\m@syu.}%
 \equiv@label@
 \fi}{\egroup\gdef\equiv@temp{\romannumeral}\par}
 
-\newcommand\eqvlabelset[1][arabic]{%
+\newcommand\eqvlabelset[1]{%
 \@xp\let\@xp\equiv@temp\csname equiv@label@#1\endcsname\relax
-\ifx\equiv@temp\equiv@label@roman
+\equiv@temp\equiv@label@roman
 \else
 \ifx\equiv@temp\equiv@label@Roman
 \else
@@ -994,7 +1090,8 @@ Step\the\m@syu.}%
 \ifx\equiv@temp\equiv@label@alph
 \else
 \@m@syu@eqvlabel
-\fi\fi\fi\fi\fi\fi}
+\fi\fi\fi\fi\fi\fi
+}
 
 \newenvironment{defiterm}[2][0em]
 {\begin{enumerate}
@@ -1006,15 +1103,14 @@ Step\the\m@syu.}%
 %%
 %%///End of defining about command which used article
 %% 
-\def\shorttext{This is a meaningless sample text.}
-\def\Text{\shorttext\shorttext\shorttext\shorttext\shorttext}
-\def\longtext{\Text\Text\Text\Text\Text\par}
+%%
+
 
 \def\m@syu@space@char{^^`}
 
 \def\m@syu@string#1{%
 \@tfor\m@syu@member:=#1\do{%
-\ifx\m@syu@member\m@syu@space@char
+\ifx\m@syu@member\m@syu@space@char %%%{} も{ }も空白とみなすために必要
 \textvisiblespace
 \else
 \ifx\m@syu@member\empty
@@ -1023,7 +1119,7 @@ Step\the\m@syu.}%
 \fi}%
 }
 
-\def\m@syu@removespace#1{%
+\def\m@syu@removespace#1{%%%% #1の空白除去を\m@syu@removedspaceに格納
 \def\m@syu@removedspace{}%
 \@tfor\m@syu@member:=#1\do{%
 \ifx\m@syu@member\empty
@@ -1036,20 +1132,47 @@ Step\the\m@syu.}%
 \newcommand{\cmd}[2][\texttt]{\eghostguarded{#1{\symbol{92}\m@syu@string{#2}}}}
 
 \newcommand{\showme}[1]{%
-\noindent
 \cmd{#1}%
 \par
-\m@syu@removespace{#1}
+\m@syu@removespace{#1}%
 \@xp\ifx\csname\m@syu@removedspace\endcsname\relax
 \eghostguarded{\textbf{!undefined!}}%
 \else
 \@xp\meaning\csname\m@syu@removedspace\endcsname
 \fi
 }
+
+\def\m@syu@math{math}
+
+\newcommand{\fonttest}[2][\m@syu@math]{%
+#1#2
+\setlength{\m@syu@length}{5em}%
+\settowidth{\m@syu@length@}{#1#2}%
+\addtolength{\m@syu@length}{-\m@syu@length@}%
+\hskip\m@syu@length
+\m@syu=\@ne\relax
+\@whilenum\m@syu<27
+\do{\edef\tempa{\@Alph\m@syu}%
+\ifx #1\m@syu@math
+$\csname math#2\@xp\endcsname\@xp{\tempa}$%
+\else
+\csname #1#2\@xp\endcsname\@xp{\tempa}%
+\fi
+\global\advance\m@syu\@ne\relax}%
+\m@syu=\@ne\relax
+\@whilenum\m@syu<27
+\do{\edef\tempa{\@alph\m@syu}%
+\ifx #1\m@syu@math
+$\csname math#2\@xp\endcsname\@xp{\tempa}$%
+\else
+\csname #1#2\@xp\endcsname\@xp{\tempa}%
+\fi
+\global\advance\m@syu\@ne\relax}%
+\par
+}
+
 \m@syu@elt
-%%
-%% End of file `askw3.sty'.
-%%
+
 \endinput
 %%
 %% End of file `askw3.sty'.
