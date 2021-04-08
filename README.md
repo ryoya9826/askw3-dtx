@@ -16,6 +16,7 @@ askw3 package
 	- bxghost
 	- ascmac
 	- amsmath,amssymb,amsthm
+	- etoolbox
 * "links"オプションで読み込むパッケージ
 	- hyperref
 	- （場合により）pxjahyper
