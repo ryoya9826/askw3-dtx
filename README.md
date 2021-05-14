@@ -19,7 +19,8 @@ fix．
 \makethm を正式に追加．
 #### v2.1, 2021/03/10
 tlarray パッケージへの依存関係を解消. 人名索引機能 (\namelabelOP) を追加．
-
+#### v2.11, 2021/05/15
+バグ修正（hyperref周辺）．linksオプションを廃止予定
 ### 前提環境
 
 * TeX エンジン： pTeX/upTeX
