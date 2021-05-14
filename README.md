@@ -26,7 +26,7 @@ tlarray パッケージへの依存関係を解消. 人名索引機能 (\namelab
 * TeX エンジン： pTeX/upTeX
 	- Yato (aka. "ZR")氏による"BXjscls"パッケージバンドルのもとで　LuaTeX, XeTeX
 * フォーマット： LaTeX, (bx)jsclsを想定
-* DVI ウェア： 不問（pTeX系列の場合はdvipdfmxを想定）
+* DVI ウェア： dvipdfmxを想定
 * 必須パッケージ
 	- xkeyval
 	- iftex
