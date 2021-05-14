@@ -1,17 +1,18 @@
 % 
 % ^^A askw3.dtx
 %
-% \CheckSum{2465}
+% \CheckSum{2466}
 % \changes{v0.0}{2017/01/22}{Making Start}
 % \changes{v1.0}{2018/10/10}{First release}
 % \changes{v1.1}{2019/10/31}{New function added! See update history}
 % \changes{v1.11}{2020/01/06}{sectionmark option is renewed}
 % \changes{v2.0}{2020/05/01}{Add makethm, surrounded theorem environment}
 % \changes{v2.1}{2021/03/10}{Add namelabelOP}
+% \changes{v2.11}{2021/05/14}{Bug fix}
 %
-% \title{askw3 package~v2.1}
-% \author{Ryoya ANDO (@Reincarnatorsan)}
-% \date{2021/03/10}
+% \title{askw3 package~v2.11}
+% \author{Ryoya ANDO \thanks{twitter:@Reincarnatorsan, \protect\url{https://ryoya9826.github.io/}}}
+% \date{2021/05/14}
 % \maketitle
 % \iffalse
 %<*driver>
@@ -24,6 +25,7 @@
 \usepackage{metalogo}
 \usepackage{newtxtext,newtxmath}
 \usepackage{multicol}
+\usepackage{url}
 \makethm{defi}{定義}
 \makethm{thm}[defi]{定理}
 \RecordChanges
@@ -42,7 +44,7 @@
 %%% GitHub:	https://github.com/ryoya9826/askw3-dtx 
 %</askw3>
 %<askw>\NeedsTeXFormat{LaTeX2e}
-%<askw>\ProvidesPackage{askw3}[2021/03/10 v2.1]
+%<askw>\ProvidesPackage{askw3}[2021/05/14 v2.11]
 %\fi
 % \newenvironment{titebend}{\par\dbend\vspace*{1zh}\par}{\par\hspace*{\fill}\dbend\vspace*{1zh}\par}
 %
@@ -63,19 +65,21 @@
 %\cs{makethm}を正式に追加．
 %\subsubsection*{v2.1, 2021/03/10}
 %tlarrayパッケージへの依存関係を解消.人名索引機能(\cs{namelabelOP})を追加．
+%\subsubsection*{v2.11, 2021/05/14}
+%hyperrefまわりのバグを修正．
 %\subsection{Introduction}
-% このパッケージは拡張された定理環境を提供し，またいくつかの簡単なマクロを提供するものです．本パッケージは内部で xkeyval, amsmath, amssymb, amsthm, ascmac, bxghost, iftex, etoolbox パッケージを読み込みます． v1.1ではtlarrayパッケージを要求していましたが， tlarrayパッケージの作者がDEPRECATEDにしたのに伴い本パッケージでも使用を取りやめましたので入手する必要はありません，また後述するオプション\quo{links}を有効にした場合，hyperrefパッケージ，場合によりpxjahyperパッケージを読み込みます．
+% このパッケージは拡張された定理環境を提供し，またいくつかの簡単なマクロを提供するものです．本パッケージは内部で xkeyval, amsmath, amssymb, amsthm, ascmac, bxghost, iftex, etoolbox パッケージを読み込みます． v1.1ではtlarrayパッケージを要求していましたが， tlarrayパッケージの作者がDEPRECATEDにしたのに伴い本パッケージでも使用を取りやめましたので入手する必要はありません，また後述するオプション\quo{links}を有効にした場合，hyperrefパッケージ，場合によりpxjahyperパッケージを読み込みます（本オプションは廃止予定です）．
 %
-% 他のパッケージを読み込む際の順序として，hyperrefパッケージはオプションを独自で指定したい場合はaskw3.styより先に読み込んでください．またnewtxmathパッケージ等の数式フォントに手を加えるパッケージを読み込む場合は本パッケージの後に読み込んでください．
+% 他のパッケージを読み込む際の順序として，hyperrefパッケージはaskw3.styより先に読み込んでください．またnewtxmathパッケージ等の数式フォントに手を加えるパッケージを読み込む場合は本パッケージの後に読み込んでください．
 %
-%本パッケージはドキュメントクラスが(bx)jsarticleであるドキュメントでの使用を想定しています. bxjsarticle.clsを用いている場合は\spverb|dvi=dvipdfmx, ja=standard, japaram={units}|をオプション引数に設定して使用していると想定して設計しています（もちろん\XeTeX やLua\TeX といったdviウェアを設定する必要のないエンジンで|dvi=dvipdfmx|指定を行う必要はありません）.
+%本パッケージはドキュメントクラスが(bx)jsarticleであるドキュメントでの使用を想定しています. bxjsarticle.clsを用いている場合は\spverb|dvi=dvipdfmx, ja=standard, japaram={units}|をオプション引数に設定して使用していると想定して設計しています（もちろんLua\TeX などのdviウェアを設定する必要のないエンジンで|dvi=dvipdfmx|指定を行う必要はありません）.
 %
 %\subsection{Package option}
 %
 % パッケージオプションを説明します．
 %\subsubsection{links}
 %
-%パッケージオプション\quo{links}を指定すると，もしhyperrefパッケージが読み込まれているならば，本パッケージが提供する枠付き定理環境についてのhyperlinkを提供します．もしhyperrefパッケージを読み込んでいない場合はhydelinks,hyperfiguresオプションでhyperrefパッケージを読み込み，同様の処理を行います．またp-\TeX 系列が実行されている場合はpxjahyperを読み込みます（plautopatch パッケージとは衝突しないはずです）．
+%\textbf{本オプションは廃止予定です！本パッケージを読む込む前にhyperrefパッケージ，pxjahyperパッケージを自身で読み込ませることを推奨します．}パッケージオプション\quo{links}を指定すると，もしhyperrefパッケージが読み込まれているならば，本パッケージが提供する枠付き定理環境についてのhyperlinkを提供します．もしhyperrefパッケージを読み込んでいない場合はhydelinks,hyperfiguresオプションでhyperrefパッケージを読み込み，同様の処理を行います．またp-\TeX 系列が実行されている場合はpxjahyperを読み込みます（plautopatch パッケージとは衝突しないはずです）．
 %
 %\subsection{Surrounded theorem environment}
 %\macro{makethm}
@@ -501,25 +505,23 @@
 
 %---Define Option behaived
 \optiondef{links}{
-	\def\m@syu@href{%
-		\refstepcounter{Item}%
-		\protected@edef\@currentHlabel{Item.\arabic{Item}}%
-	}
-	%\AtEndPreamble{
-		\@ifpackageloaded{hyperref}{
-			\ifptex
+	\@ifpackageloaded{hyperref}{
+		\ifptex
 			\RequirePackage{pxjahyper} %p-TeX以外では読み込まない
 			\m@syu@packageloaded{pxjahyper}
-			\fi
-		}{	
-			\RequirePackage[hidelinks,hyperfigures]{hyperref}
-			\m@syu@packageloaded{hyperref}
-			\ifptex
+		\fi
+	}{	
+		\RequirePackage[hidelinks,hyperfigures]{hyperref}
+		\m@syu@packageloaded{hyperref}
+		\ifptex
 			\RequirePackage{pxjahyper}
 			\m@syu@packageloaded{pxjahyper}
-			\fi
-		}
-		%}
+		\fi
+	}
+}{}
+
+\@ifpackageloaded{hyperref}{
+	\def\m@syu@href{\refstepcounter{Item}\global\protected@edef\@currentHref{Item.\arabic{Item}}}
 }{\def\m@syu@href{\relax}}
 
 \AtEndPreamble{
@@ -697,8 +699,7 @@
 			\addtocounter{#1}{1}%
 			\protected@edef\@currentlabel{#3\csname the#1\endcsname}%
 			\begin{itembox}[l]{%
-					\m@syu@href
-					#3\m@syu@punct\textit{\csname the#1\endcsname}\m@syu@thmlabel{##1}}%
+				#3\m@syu@punct\textit{\csname the#1\endcsname}\m@syu@thmlabel{##1}\m@syu@href}%
 			}{\end{itembox}}%
 	}{%
 		\PackageError{askw.sty}{'#1' environment is already defined}\@eha
@@ -710,8 +711,7 @@
 			\addtocounter{#2}{1}%
 			\protected@edef\@currentlabel{#3\csname the#2\endcsname}%
 			\begin{itembox}[l]{%
-					\m@syu@href
-					#3\textit{\csname the#2\endcsname}\m@syu@thmlabel{##1}}%
+				#3\textit{\csname the#2\endcsname}\m@syu@thmlabel{##1}\m@syu@href}%
 			}{\end{itembox}}%
 	}%
 	\fi
