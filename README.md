@@ -59,4 +59,4 @@ $ mktexlsr	（必要に応じて）
 
 ------------------------
 Ryoya Ando
-https://github.com/ryoya9826
+https://ryoya9826.github.io/
